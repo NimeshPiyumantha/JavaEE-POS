@@ -1,32 +1,36 @@
-package Servlet; /**
- * @author : Nimesh Piyumantha
- * @since : 0.1.0
- **/
+package Servlet;
 
 import model.CustomerDTO;
 import util.CrudUtil;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import javax.servlet.annotation.*;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 
-@WebServlet(name = "CustomerServlet", value = "/CustomerServlet",urlPatterns = "/customer")
+/**
+ * @author : Nimesh Piyumantha
+ * @since : 0.1.0
+ **/
+@WebServlet(urlPatterns = "/customer")
 public class CustomerServlet extends HttpServlet {
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        String id = request.getParameter("txtCusId");
-        String name = request.getParameter("txtCusName");
-        String address = request.getParameter("txtCusAddress");
-        double salary = Double.parseDouble(request.getParameter("txtCustomerSalary"));
-        String option = request.getParameter("option");
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
+        String id = req.getParameter("txtCusId");
+        String name = req.getParameter("txtCusName");
+        String address = req.getParameter("txtCusAddress");
+        double salary = Double.parseDouble(req.getParameter("txtCustomerSalary"));
+        String option = req.getParameter("option");
 
         try {
             switch (option) {
@@ -52,3 +56,4 @@ public class CustomerServlet extends HttpServlet {
         }
     }
 }
+
