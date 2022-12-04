@@ -167,5 +167,44 @@
 <!--import jQuery library-->
 <script rel="script" src="assets/styles/jQuery/jquery-3.6.1.min.js"></script>
 
+<script>
+    $("#btnSaveCustomer").click(function () {
+        let formData = $("#customerForm").serialize();
+        $.ajax({
+            url: "customer?option=add",
+            method: "post",
+            data: formData,
+            success: function (res) {
+
+            }
+        });
+    });
+
+    $("#btnUpdateCustomer").click(function () {
+        let formData = $("#customerForm").serialize();
+        $.ajax({
+            url: "customer?option=update",
+            method: "post",
+            data: formData,
+            success: function (res) {
+
+            }
+        });
+    });
+
+    $("#btnDeleteCustomer").click(function () {
+        let formData = $("#customerForm").serialize();
+        $.ajax({
+            url: "customer?option=delete",
+            method: "post",
+            data: formData,
+            success: function (res) {
+
+            }
+        });
+    });
+
+
+</script>
 </body>
 </html>
