@@ -28,5 +28,7 @@ public class ItemServlet extends HttpServlet {
         double unitPrice = Double.parseDouble(req.getParameter("txtItemPrice"));
         String option = req.getParameter("option");
 
+
+
     }
 }
