@@ -22,5 +22,11 @@ public class ItemServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
+        String code = req.getParameter("txtItemID");
+        String description = req.getParameter("txtItemName");
+        String qty = req.getParameter("txtItemQty");
+        double unitPrice = Double.parseDouble(req.getParameter("txtItemPrice"));
+        String option = req.getParameter("option");
+
     }
 }
