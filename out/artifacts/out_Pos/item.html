@@ -107,29 +107,31 @@
             <!-- Item Details Search Section Start -->
             <div class="col-10 col-md-5 col-lg-4 p-0 mt-2 rounded-3 sectionBorder" style="background-color: white">
 
-                <div class="mb-3 ms-3 me-3 mt-3 ">
-                    <label class="fw-bold" for="txtItemID">Item Code :</label>
-                    <input class="form-control " id="txtItemID" type="text">
-                    <span class="control-error"></span>
-                </div>
+                <form action="item" id="itemForm">
+                    <div class="mb-3 ms-3 me-3 mt-3 ">
+                        <label class="fw-bold" for="txtItemID">Item Code :</label>
+                        <input class="form-control " id="txtItemID" name="txtItemID" type="text">
+                        <span class="control-error"></span>
+                    </div>
 
-                <div class="mb-3 ms-3 me-3 mt-3 ">
-                    <label class="fw-bold" for="txtItemName">Item Name :</label>
-                    <input class="form-control " id="txtItemName" type="text">
-                    <span class="control-error"></span>
-                </div>
+                    <div class="mb-3 ms-3 me-3 mt-3 ">
+                        <label class="fw-bold" for="txtItemName">Item Name :</label>
+                        <input class="form-control " id="txtItemName" name="txtItemName" type="text">
+                        <span class="control-error"></span>
+                    </div>
 
-                <div class="mb-3 ms-3 me-3 mt-3 ">
-                    <label class="fw-bold" for="txtItemQty">Item Qty :</label>
-                    <input class="form-control " id="txtItemQty" type="text">
-                    <span class="control-error"></span>
-                </div>
+                    <div class="mb-3 ms-3 me-3 mt-3 ">
+                        <label class="fw-bold" for="txtItemQty">Item Qty :</label>
+                        <input class="form-control " id="txtItemQty" name="txtItemQty" type="text">
+                        <span class="control-error"></span>
+                    </div>
 
-                <div class="mb-3 ms-3 me-3 mt-3 ">
-                    <label class="fw-bold" for="txtItemPrice">Item Price :</label>
-                    <input class="form-control " id="txtItemPrice" type="text">
-                    <span class="control-error"></span>
-                </div>
+                    <div class="mb-3 ms-3 me-3 mt-3 ">
+                        <label class="fw-bold" for="txtItemPrice">Item Price :</label>
+                        <input class="form-control " id="txtItemPrice" name="txtItemPrice" type="text">
+                        <span class="control-error"></span>
+                    </div>
+                </form>
             </div>
             <!-- Item Details Search Section End -->
         </div>
@@ -165,5 +167,44 @@
 <!--import jQuery library-->
 <script rel="script" src="assets/styles/jQuery/jquery-3.6.1.min.js"></script>
 
+<script>
+    $("#btnAddItem").click(function () {
+        let formData = $("#itemForm").serialize();
+        $.ajax({
+            url: "item?option=add",
+            method: "post",
+            data: formData,
+            success: function (res) {
+
+            }
+        });
+    });
+
+    $("#btnUpdateItem").click(function () {
+        let formData = $("#itemForm").serialize();
+        $.ajax({
+            url: "item?option=update",
+            method: "post",
+            data: formData,
+            success: function (res) {
+
+            }
+        });
+    });
+
+    $("#btnDeleteItem").click(function () {
+        let formData = $("#itemForm").serialize();
+        $.ajax({
+            url: "item?option=delete",
+            method: "post",
+            data: formData,
+            success: function (res) {
+
+            }
+        });
+    });
+
+
+</script>
 </body>
 </html>
