@@ -9,7 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  * @author : Nimesh Piyumantha
@@ -19,6 +21,26 @@ import java.sql.SQLException;
 public class CustomerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        ArrayList<CustomerDTO> obList = new ArrayList<>();
+        try {
+            ResultSet result = CrudUtil.execute("SELECT * FROM Customer");
+            while (result.next()) {
+                obList.add(new CustomerDTO(result.getString(1), result.getString(2), result.getString(3), result.getDouble(4)));
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        String json = "[";
+
+        for (CustomerDTO customer : obList) {
+            json += "{\"id\":\"" + customer.getId() + "\",\"name\":\"" + customer.getName() + "\",\"address\":\"" + customer.getAddress() + "\",\"salary\":" + customer.getSalary() + "},";
+        }
+        String finalArray = json.substring(0, json.length()-1);
+        finalArray += "]";
+
+        resp.addHeader("Content-Type", "application/json");
+        resp.getWriter().write(finalArray);
 
     }
 
