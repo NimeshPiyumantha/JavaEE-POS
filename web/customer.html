@@ -177,7 +177,7 @@
             data: formData,
             success: function (res) {
                 loadAllCustomer();
-                blindClickEvents();
+                clearCusTextFields();
             }
         });
     });
@@ -190,6 +190,7 @@
             data: formData,
             success: function (res) {
                 loadAllCustomer();
+                clearCusTextFields();
             }
         });
     });
@@ -203,6 +204,7 @@
             data: formData,
             success: function (res) {
                 loadAllCustomer();
+                clearCusTextFields();
             }
         });
     });
@@ -224,6 +226,7 @@
         });
     }
 
+
     function blindClickEvents() {
         $("#customerTable>tr").on( "click", function() {
             let id = $(this).children().eq(0).text();
@@ -236,10 +239,15 @@
             $("#txtCusName").val(name);
             $("#txtCusAddress").val(address);
             $("#txtCustomerSalary").val(salary);
-
-
-
         });
+    }
+    function clearCusTextFields() {
+        txtCusId.value = '';
+        txtCusName.value = '';
+        txtCusAddress.value = '';
+        txtCustomerSalary.value = '';
+        $("#txtCusId").focus();
+
     }
 
 </script>
