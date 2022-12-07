@@ -168,6 +168,7 @@
 <script rel="script" src="assets/styles/jQuery/jquery-3.6.1.min.js"></script>
 
 <script>
+    loadAllItems();
     $("#btnAddItem").click(function () {
         let formData = $("#itemForm").serialize();
         $.ajax({
@@ -175,7 +176,8 @@
             method: "post",
             data: formData,
             success: function (res) {
-
+                loadAllItems();
+                clearCusTextFields();
             }
         });
     });
@@ -187,7 +189,8 @@
             method: "post",
             data: formData,
             success: function (res) {
-
+                loadAllItems();
+                clearCusTextFields();
             }
         });
     });
@@ -199,11 +202,53 @@
             method: "post",
             data: formData,
             success: function (res) {
-
+                loadAllItems();
+                clearCusTextFields();
             }
         });
     });
 
+
+    function loadAllItems() {
+        $("#customerTable").empty();
+        $.ajax({
+            url: "item",
+            method: "GET",
+            dataType: "json",
+            success: function (res) {
+                console.log(res);
+                for (let i = 0; i < res.length; i++) {
+                    $("#ItemTable").append(`<tr><td>` + res[i].code + `</td><td>` + res[i].description + `</td><td>` + res[i].qty + `</td><td>` + res[i].unitPrice);
+                }
+                blindClickEvents();
+            }
+
+        });
+    }
+
+
+    function blindClickEvents() {
+        $("#ItemTable>tr").on( "click", function() {
+            let code = $(this).children().eq(0).text();
+            let description = $(this).children().eq(1).text();
+            let qty = $(this).children().eq(2).text();
+            let unitPrice = $(this).children().eq(3).text();
+            console.log(code, description, qty, unitPrice);
+
+            $("#txtItemID").val(code);
+            $("#txtItemName").val(description);
+            $("#txtItemQty").val(qty);
+            $("#txtItemPrice").val(unitPrice);
+        });
+    }
+    function clearCusTextFields() {
+        txtItemID.value = '';
+        txtItemName.value = '';
+        txtItemQty.value = '';
+        txtItemPrice.value = '';
+        $("#txtItemID").focus();
+
+    }
 
 </script>
 </body>
