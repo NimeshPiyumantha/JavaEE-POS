@@ -9,7 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  * @author : Nimesh Piyumantha
@@ -20,7 +22,26 @@ import java.sql.SQLException;
 public class ItemServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        ArrayList<ItemDTO> obList = new ArrayList<>();
+        try {
+            ResultSet result = CrudUtil.execute("SELECT * FROM Item");
+            while (result.next()) {
+                obList.add(new ItemDTO(result.getString(1), result.getString(2), result.getInt(3), result.getDouble(4)));
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        }
 
+        String json = "[";
+
+        for (ItemDTO itemDTO : obList) {
+            json += "{\"code\":\"" + itemDTO.getCode() + "\",\"description\":\"" + itemDTO.getDescription() + "\",\"qty\":\"" + itemDTO.getQty() + "\",\"unitPrice\":" + itemDTO.getUnitPrice() + "},";
+        }
+        String finalArray = json.substring(0, json.length() - 1);
+        finalArray += "]";
+
+        resp.addHeader("Content-Type", "application/json");
+        resp.getWriter().write(finalArray);
     }
 
     @Override
