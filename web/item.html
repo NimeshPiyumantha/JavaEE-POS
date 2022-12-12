@@ -172,7 +172,7 @@
     $("#btnAddItem").click(function () {
         let formData = $("#itemForm").serialize();
         $.ajax({
-            url: "item?option=add",
+            url: "item",
             method: "post",
             data: formData,
             success: function (res) {
@@ -183,11 +183,24 @@
     });
 
     $("#btnUpdateItem").click(function () {
-        let formData = $("#itemForm").serialize();
+
+        let itCode = $("#txtItemID").val();
+        let itDescription = $("#txtItemName").val();
+        let itQty = $("#txtItemQty").val();
+        let itUnitPrice = $("#txtItemPrice").val();
+
+        const itemOb = {
+            code: itCode,
+            description: itDescription,
+            qty: itQty,
+            unitPrice: itUnitPrice
+        }
+
         $.ajax({
-            url: "item?option=update",
-            method: "post",
-            data: formData,
+            url: "item",
+            method: "put",
+            contentType: "application/json",
+            data:JSON.stringify(itemOb) ,
             success: function (res) {
                 loadAllItems();
                 clearCusTextFields();
@@ -198,8 +211,8 @@
     $("#btnDeleteItem").click(function () {
         let formData = $("#itemForm").serialize();
         $.ajax({
-            url: "item?option=delete",
-            method: "post",
+            url: "item",
+            method: "delete",
             data: formData,
             success: function (res) {
                 loadAllItems();
@@ -228,7 +241,7 @@
 
 
     function blindClickEvents() {
-        $("#ItemTable>tr").on( "click", function() {
+        $("#ItemTable>tr").on("click", function () {
             let code = $(this).children().eq(0).text();
             let description = $(this).children().eq(1).text();
             let qty = $(this).children().eq(2).text();
@@ -241,6 +254,7 @@
             $("#txtItemPrice").val(unitPrice);
         });
     }
+
     function clearCusTextFields() {
         txtItemID.value = '';
         txtItemName.value = '';

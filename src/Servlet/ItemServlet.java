@@ -3,9 +3,7 @@ package Servlet;
 import model.ItemDTO;
 import util.CrudUtil;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
+import javax.json.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -56,7 +54,7 @@ public class ItemServlet extends HttpServlet {
         String description = req.getParameter("txtItemName");
         int qty = Integer.parseInt(req.getParameter("txtItemQty"));
         double unitPrice = Double.parseDouble(req.getParameter("txtItemPrice"));
-        String option = req.getParameter("option");
+
 
         try {
             //Save Item
@@ -71,11 +69,13 @@ public class ItemServlet extends HttpServlet {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String code = req.getParameter("txtItemID");
-        String description = req.getParameter("txtItemName");
-        int qty = Integer.parseInt(req.getParameter("txtItemQty"));
-        double unitPrice = Double.parseDouble(req.getParameter("txtItemPrice"));
-        String option = req.getParameter("option");
+        JsonReader reader = Json.createReader(req.getReader());
+        JsonObject item = reader.readObject();
+
+        String code = item.getString("code");
+        String description = item.getString("description");
+        int qty = Integer.parseInt(item.getString("qty"));
+        double unitPrice = Double.parseDouble(item.getString("unitPrice"));
 
         //Update Item
         ItemDTO iU = new ItemDTO(code, description, qty, unitPrice);
