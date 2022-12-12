@@ -172,7 +172,7 @@
     $("#btnSaveCustomer").click(function () {
         let formData = $("#customerForm").serialize();
         $.ajax({
-            url: "customer?option=add",
+            url: "customer",
             method: "post",
             data: formData,
             success: function (res) {
@@ -183,11 +183,24 @@
     });
 
     $("#btnUpdateCustomer").click(function () {
-        let formData = $("#customerForm").serialize();
+
+        let cusId = $("#txtCusId").val();
+        let cusName = $("#txtCusName").val();
+        let cusAddress = $("#txtCusAddress").val();
+        let cusSalary = $("#txtCustomerSalary").val();
+
+        const customerOb = {
+            id: cusId,
+            name: cusName,
+            address: cusAddress,
+            salary: cusSalary
+        };
+
         $.ajax({
-            url: "customer?option=update",
-            method: "post",
-            data: formData,
+            url: "customer",
+            method: "put",
+            contentType: "application/json",
+            data: JSON.stringify(customerOb),
             success: function (res) {
                 loadAllCustomer();
                 clearCusTextFields();
@@ -199,8 +212,8 @@
         loadAllCustomer();
         let formData = $("#customerForm").serialize();
         $.ajax({
-            url: "customer?option=delete",
-            method: "post",
+            url: "customer",
+            method: "delete",
             data: formData,
             success: function (res) {
                 loadAllCustomer();

@@ -3,9 +3,7 @@ package Servlet;
 import model.CustomerDTO;
 import util.CrudUtil;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
+import javax.json.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -69,10 +67,14 @@ public class CustomerServlet extends HttpServlet {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String id = req.getParameter("txtCusId");
-        String name = req.getParameter("txtCusName");
-        String address = req.getParameter("txtCusAddress");
-        double salary = Double.parseDouble(req.getParameter("txtCustomerSalary"));
+
+        JsonReader reader = Json.createReader(req.getReader());
+        JsonObject customer = reader.readObject();
+
+        String id = customer.getString("id");
+        String name = customer.getString("name");
+        String address = customer.getString("address");
+        double salary = Double.parseDouble(customer.getString("salary"));
 
         //Update Customer
         CustomerDTO cU = new CustomerDTO(id, name, address, salary);
