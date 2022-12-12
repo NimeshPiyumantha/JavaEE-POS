@@ -23,16 +23,26 @@ public class CustomerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ArrayList<CustomerDTO> obList = new ArrayList<>();
+        JsonArrayBuilder allCustomers = Json.createArrayBuilder();
         try {
             ResultSet result = CrudUtil.execute("SELECT * FROM Customer");
             while (result.next()) {
                 obList.add(new CustomerDTO(result.getString(1), result.getString(2), result.getString(3), result.getDouble(4)));
             }
+            JsonObjectBuilder job = Json.createObjectBuilder();
+            job.add("state","Ok");
+            job.add("message","Successfully Loaded..!");
+            job.add("data",allCustomers.build());
+
         } catch (ClassNotFoundException | SQLException e) {
-            throw new RuntimeException(e);
+            JsonObjectBuilder rjo = Json.createObjectBuilder();
+            rjo.add("state","Error");
+            rjo.add("message",e.getLocalizedMessage());
+            rjo.add("data","");
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().print(rjo.build());
         }
 
-        JsonArrayBuilder allCustomers = Json.createArrayBuilder();
         for (CustomerDTO customerDTO : obList) {
             JsonObjectBuilder customer = Json.createObjectBuilder();
             customer.add("id", customerDTO.getId());
