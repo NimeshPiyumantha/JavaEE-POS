@@ -3,6 +3,9 @@ package Servlet;
 import model.ItemDTO;
 import util.CrudUtil;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -32,16 +35,18 @@ public class ItemServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
 
-        String json = "[";
-
+        JsonArrayBuilder allItems = Json.createArrayBuilder();
         for (ItemDTO itemDTO : obList) {
-            json += "{\"code\":\"" + itemDTO.getCode() + "\",\"description\":\"" + itemDTO.getDescription() + "\",\"qty\":\"" + itemDTO.getQty() + "\",\"unitPrice\":" + itemDTO.getUnitPrice() + "},";
+            JsonObjectBuilder item = Json.createObjectBuilder();
+            item.add("code", itemDTO.getCode());
+            item.add("description", itemDTO.getDescription());
+            item.add("qty", itemDTO.getQty());
+            item.add("unitPrice", itemDTO.getUnitPrice());
+            allItems.add(item.build());
         }
-        String finalArray = json.substring(0, json.length() - 1);
-        finalArray += "]";
 
         resp.addHeader("Content-Type", "application/json");
-        resp.getWriter().write(finalArray);
+        resp.getWriter().print(allItems.build());
     }
 
     @Override
