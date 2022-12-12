@@ -59,27 +59,46 @@ public class ItemServlet extends HttpServlet {
         String option = req.getParameter("option");
 
         try {
-            switch (option) {
-                //Save Item
-                case "add":
-                    ItemDTO i = new ItemDTO(code, description, qty, unitPrice);
-                    CrudUtil.execute("INSERT INTO Item VALUES (?,?,?,?)", i.getCode(), i.getDescription(), i.getQty(), i.getUnitPrice());
-                    break;
-
-                case "update":
-                    //Update Item
-                    ItemDTO iU = new ItemDTO(code, description, qty, unitPrice);
-                    CrudUtil.execute("UPDATE Item SET description= ? , qtyOnHand=? , unitPrice=? WHERE code=?", iU.getDescription(), iU.getQty(), iU.getUnitPrice(), iU.getCode());
-                    break;
-
-                case "delete":
-                    //Delete Item
-                    CrudUtil.execute("DELETE FROM Item WHERE code=?", code);
-                    break;
-            }
-        } catch (SQLException | ClassNotFoundException ignored) {
-
+            //Save Item
+            ItemDTO i = new ItemDTO(code, description, qty, unitPrice);
+            CrudUtil.execute("INSERT INTO Item VALUES (?,?,?,?)", i.getCode(), i.getDescription(), i.getQty(), i.getUnitPrice());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
+    }
 
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String code = req.getParameter("txtItemID");
+        String description = req.getParameter("txtItemName");
+        int qty = Integer.parseInt(req.getParameter("txtItemQty"));
+        double unitPrice = Double.parseDouble(req.getParameter("txtItemPrice"));
+        String option = req.getParameter("option");
+
+        //Update Item
+        ItemDTO iU = new ItemDTO(code, description, qty, unitPrice);
+        try {
+            CrudUtil.execute("UPDATE Item SET description= ? , qtyOnHand=? , unitPrice=? WHERE code=?", iU.getDescription(), iU.getQty(), iU.getUnitPrice(), iU.getCode());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String code = req.getParameter("txtItemID");
+
+        //Delete Item
+        try {
+            CrudUtil.execute("DELETE FROM Item WHERE code=?", code);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
