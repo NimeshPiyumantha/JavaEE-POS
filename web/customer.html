@@ -209,12 +209,24 @@
     });
 
     $("#btnDeleteCustomer").click(function () {
-        loadAllCustomer();
-        let formData = $("#customerForm").serialize();
+
+        let cusId = $("#txtCusId").val();
+        let cusName = $("#txtCusName").val();
+        let cusAddress = $("#txtCusAddress").val();
+        let cusSalary = $("#txtCustomerSalary").val();
+
+        const customerOb = {
+            id: cusId,
+            name: cusName,
+            address: cusAddress,
+            salary: cusSalary
+        };
+
         $.ajax({
             url: "customer",
             method: "delete",
-            data: formData,
+            contentType: "application/json",
+            data: JSON.stringify(customerOb),
             success: function (res) {
                 loadAllCustomer();
                 clearCusTextFields();

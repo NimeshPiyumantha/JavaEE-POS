@@ -90,7 +90,10 @@ public class CustomerServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String id = req.getParameter("txtCusId");
+        JsonReader reader = Json.createReader(req.getReader());
+        JsonObject customer = reader.readObject();
+
+        String id = customer.getString("id");
 
         //Delete Customer
         try {
