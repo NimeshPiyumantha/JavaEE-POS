@@ -55,29 +55,48 @@ public class CustomerServlet extends HttpServlet {
         String name = req.getParameter("txtCusName");
         String address = req.getParameter("txtCusAddress");
         double salary = Double.parseDouble(req.getParameter("txtCustomerSalary"));
-        String option = req.getParameter("option");
 
         try {
-            switch (option) {
-                //Save Customer
-                case "add":
-                    CustomerDTO c = new CustomerDTO(id, name, address, salary);
-                    CrudUtil.execute("INSERT INTO Customer VALUES (?,?,?,?)", c.getId(), c.getName(), c.getAddress(), c.getSalary());
-                    break;
+            //Save Customer
+            CustomerDTO c = new CustomerDTO(id, name, address, salary);
+            CrudUtil.execute("INSERT INTO Customer VALUES (?,?,?,?)", c.getId(), c.getName(), c.getAddress(), c.getSalary());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-                case "update":
-                    //Update Customer
-                    CustomerDTO cU = new CustomerDTO(id, name, address, salary);
-                    CrudUtil.execute("UPDATE Customer SET name= ? , address=? , salary=? WHERE id=?", cU.getName(), cU.getAddress(), cU.getSalary(), cU.getId());
-                    break;
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String id = req.getParameter("txtCusId");
+        String name = req.getParameter("txtCusName");
+        String address = req.getParameter("txtCusAddress");
+        double salary = Double.parseDouble(req.getParameter("txtCustomerSalary"));
 
-                case "delete":
-                    //Delete Customer
-                    CrudUtil.execute("DELETE FROM Customer WHERE id=?", id);
-                    break;
-            }
-        } catch (SQLException | ClassNotFoundException ignored) {
+        //Update Customer
+        CustomerDTO cU = new CustomerDTO(id, name, address, salary);
+        try {
+            CrudUtil.execute("UPDATE Customer SET name= ? , address=? , salary=? WHERE id=?", cU.getName(), cU.getAddress(), cU.getSalary(), cU.getId());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String id = req.getParameter("txtCusId");
+
+        //Delete Customer
+        try {
+            CrudUtil.execute("DELETE FROM Customer WHERE id=?", id);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 }
