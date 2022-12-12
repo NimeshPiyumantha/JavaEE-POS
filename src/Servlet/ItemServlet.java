@@ -24,27 +24,37 @@ public class ItemServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ArrayList<ItemDTO> obList = new ArrayList<>();
+        JsonArrayBuilder allItems = Json.createArrayBuilder();
+
         try {
             ResultSet result = CrudUtil.execute("SELECT * FROM Item");
             while (result.next()) {
                 obList.add(new ItemDTO(result.getString(1), result.getString(2), result.getInt(3), result.getDouble(4)));
             }
+            for (ItemDTO itemDTO : obList) {
+                JsonObjectBuilder item = Json.createObjectBuilder();
+                item.add("code", itemDTO.getCode());
+                item.add("description", itemDTO.getDescription());
+                item.add("qty", itemDTO.getQty());
+                item.add("unitPrice", itemDTO.getUnitPrice());
+                allItems.add(item.build());
+            }
+            resp.addHeader("Content-Type", "application/json");
+
+            JsonObjectBuilder job = Json.createObjectBuilder();
+            job.add("state","Ok");
+            job.add("message","Successfully Loaded..!");
+            job.add("data",allItems.build());
+            resp.getWriter().print(job.build());
+
         } catch (ClassNotFoundException | SQLException e) {
-            throw new RuntimeException(e);
+            JsonObjectBuilder rjo = Json.createObjectBuilder();
+            rjo.add("state","Error");
+            rjo.add("message",e.getLocalizedMessage());
+            rjo.add("data","");
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().print(rjo.build());
         }
-
-        JsonArrayBuilder allItems = Json.createArrayBuilder();
-        for (ItemDTO itemDTO : obList) {
-            JsonObjectBuilder item = Json.createObjectBuilder();
-            item.add("code", itemDTO.getCode());
-            item.add("description", itemDTO.getDescription());
-            item.add("qty", itemDTO.getQty());
-            item.add("unitPrice", itemDTO.getUnitPrice());
-            allItems.add(item.build());
-        }
-
-        resp.addHeader("Content-Type", "application/json");
-        resp.getWriter().print(allItems.build());
     }
 
     @Override

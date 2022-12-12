@@ -29,10 +29,22 @@ public class CustomerServlet extends HttpServlet {
             while (result.next()) {
                 obList.add(new CustomerDTO(result.getString(1), result.getString(2), result.getString(3), result.getDouble(4)));
             }
+            for (CustomerDTO customerDTO : obList) {
+                JsonObjectBuilder customer = Json.createObjectBuilder();
+                customer.add("id", customerDTO.getId());
+                customer.add("name", customerDTO.getName());
+                customer.add("address", customerDTO.getAddress());
+                customer.add("salary", customerDTO.getSalary());
+                allCustomers.add(customer.build());
+            }
+
+            resp.addHeader("Content-Type", "application/json");
+
             JsonObjectBuilder job = Json.createObjectBuilder();
             job.add("state","Ok");
             job.add("message","Successfully Loaded..!");
             job.add("data",allCustomers.build());
+            resp.getWriter().print(job.build());
 
         } catch (ClassNotFoundException | SQLException e) {
             JsonObjectBuilder rjo = Json.createObjectBuilder();
@@ -42,17 +54,6 @@ public class CustomerServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().print(rjo.build());
         }
-
-        for (CustomerDTO customerDTO : obList) {
-            JsonObjectBuilder customer = Json.createObjectBuilder();
-            customer.add("id", customerDTO.getId());
-            customer.add("name", customerDTO.getName());
-            customer.add("address", customerDTO.getAddress());
-            customer.add("salary", customerDTO.getSalary());
-            allCustomers.add(customer.build());
-        }
-        resp.addHeader("Content-Type", "application/json");
-        resp.getWriter().print(allCustomers.build());
     }
 
 

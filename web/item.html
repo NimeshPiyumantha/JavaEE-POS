@@ -232,18 +232,29 @@
 
 
     function loadAllItems() {
-        $("#customerTable").empty();
+        $("#ItemTable").empty();
         $.ajax({
             url: "item",
             method: "GET",
             dataType: "json",
             success: function (res) {
                 console.log(res);
-                for (let i = 0; i < res.length; i++) {
-                    $("#ItemTable").append(`<tr><td>` + res[i].code + `</td><td>` + res[i].description + `</td><td>` + res[i].qty + `</td><td>` + res[i].unitPrice);
+                for (let i of res.data) {
+                    let code = i.code;
+                    let description = i.description;
+                    let qty = i.qty;
+                    let unitPrice = i.unitPrice;
+
+                    let row = "<tr><td>" + code + "</td><td>" + description + "</td><td>" + qty + "</td><td>" + unitPrice + "</td></tr>";
+                    $("#ItemTable").append(row);
                 }
                 blindClickEvents();
                 setTextFieldValues("", "", "", "");
+                alert(res.message);
+            },
+            error: function (error) {
+                let message = JSON.parse(error.responseText).message;
+                alert(message);
             }
         });
     }

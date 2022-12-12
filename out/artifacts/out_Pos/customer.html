@@ -236,13 +236,22 @@
         $.ajax({
             url: "customer",
             method: "GET",
+            dataType: "json",
             success: function (res) {
                 console.log(res);
-                for (let i = 0; i < res.length; i++) {
-                    $("#customerTable").append(`<tr><td>` + res[i].id + `</td><td>` + res[i].name + `</td><td>` + res[i].address + `</td><td>` + res[i].salary);
+
+                for (let i of res.data) {
+                    let id = i.id;
+                    let name = i.name;
+                    let address = i.address;
+                    let salary = i.salary;
+
+                    let row = "<tr><td>" + id + "</td><td>" + name + "</td><td>" + address + "</td><td>" + salary + "</td></tr>";
+                    $("#customerTable").append(row);
                 }
                 blindClickEvents();
                 setTextFieldValues("", "", "", "");
+                alert(res.message);
             },
             error: function (error) {
                 let message = JSON.parse(error.responseText).message;
