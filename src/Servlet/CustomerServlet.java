@@ -3,6 +3,9 @@ package Servlet;
 import model.CustomerDTO;
 import util.CrudUtil;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -31,17 +34,17 @@ public class CustomerServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
 
-        String json = "[";
-
-        for (CustomerDTO customer : obList) {
-            json += "{\"id\":\"" + customer.getId() + "\",\"name\":\"" + customer.getName() + "\",\"address\":\"" + customer.getAddress() + "\",\"salary\":" + customer.getSalary() + "},";
+        JsonArrayBuilder allCustomers = Json.createArrayBuilder();
+        for (CustomerDTO customerDTO : obList) {
+            JsonObjectBuilder customer = Json.createObjectBuilder();
+            customer.add("id", customerDTO.getId());
+            customer.add("name", customerDTO.getName());
+            customer.add("address", customerDTO.getAddress());
+            customer.add("salary", customerDTO.getSalary());
+            allCustomers.add(customer.build());
         }
-        String finalArray = json.substring(0, json.length()-1);
-        finalArray += "]";
-
         resp.addHeader("Content-Type", "application/json");
-        resp.getWriter().write(finalArray);
-
+        resp.getWriter().print(allCustomers.build());
     }
 
 

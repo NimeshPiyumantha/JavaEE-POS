@@ -9,6 +9,7 @@
         <element id="directory" name="lib">
           <element id="file-copy" path="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.22/lombok-1.18.22.jar" />
           <element id="library" level="project" name="mysql-connector-java-8.0.25" />
+          <element id="library" level="project" name="javax.json-1.1.4" />
         </element>
       </element>
       <element id="javaee-facet-resources" facet="JavaEE-POS/web/Web" />
