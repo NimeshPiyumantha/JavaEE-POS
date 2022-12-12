@@ -209,11 +209,22 @@
     });
 
     $("#btnDeleteItem").click(function () {
-        let formData = $("#itemForm").serialize();
+        let itCode = $("#txtItemID").val();
+        let itDescription = $("#txtItemName").val();
+        let itQty = $("#txtItemQty").val();
+        let itUnitPrice = $("#txtItemPrice").val();
+
+        const itemOb = {
+            code: itCode,
+            description: itDescription,
+            qty: itQty,
+            unitPrice: itUnitPrice
+        }
         $.ajax({
             url: "item",
             method: "delete",
-            data: formData,
+            contentType: "application/json",
+            data:JSON.stringify(itemOb) ,
             success: function (res) {
                 loadAllItems();
                 clearCusTextFields();

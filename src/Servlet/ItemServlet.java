@@ -90,7 +90,10 @@ public class ItemServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String code = req.getParameter("txtItemID");
+        JsonReader reader = Json.createReader(req.getReader());
+        JsonObject item = reader.readObject();
+
+        String code = item.getString("code");
 
         //Delete Item
         try {
