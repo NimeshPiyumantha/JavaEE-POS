@@ -177,7 +177,6 @@
             data: formData,
             success: function (res) {
                 loadAllCustomer();
-                clearCusTextFields();
             }
         });
     });
@@ -203,7 +202,6 @@
             data: JSON.stringify(customerOb),
             success: function (res) {
                 loadAllCustomer();
-                clearCusTextFields();
             }
         });
     });
@@ -229,7 +227,6 @@
             data: JSON.stringify(customerOb),
             success: function (res) {
                 loadAllCustomer();
-                clearCusTextFields();
             }
         });
     });
@@ -246,6 +243,7 @@
                     $("#customerTable").append(`<tr><td>` + res[i].id + `</td><td>` + res[i].name + `</td><td>` + res[i].address + `</td><td>` + res[i].salary);
                 }
                 blindClickEvents();
+                setTextFieldValues("", "", "", "");
             }
 
         });
@@ -266,11 +264,13 @@
             $("#txtCustomerSalary").val(salary);
         });
     }
-    function clearCusTextFields() {
-        txtCusId.value = '';
-        txtCusName.value = '';
-        txtCusAddress.value = '';
-        txtCustomerSalary.value = '';
+
+    //Set text fields values function
+    function setTextFieldValues(id,name,address,salary) {
+        $("#txtCusId").val(id);
+        $("#txtCusName").val(name);
+        $("#txtCusAddress").val(address);
+        $("#txtCustomerSalary").val(salary);
         $("#txtCusId").focus();
 
     }

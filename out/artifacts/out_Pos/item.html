@@ -177,7 +177,6 @@
             data: formData,
             success: function (res) {
                 loadAllItems();
-                clearCusTextFields();
             }
         });
     });
@@ -200,10 +199,9 @@
             url: "item",
             method: "put",
             contentType: "application/json",
-            data:JSON.stringify(itemOb) ,
+            data: JSON.stringify(itemOb),
             success: function (res) {
                 loadAllItems();
-                clearCusTextFields();
             }
         });
     });
@@ -225,10 +223,9 @@
             url: "item",
             method: "delete",
             contentType: "application/json",
-            data:JSON.stringify(itemOb) ,
+            data: JSON.stringify(itemOb),
             success: function (res) {
                 loadAllItems();
-                clearCusTextFields();
             }
         });
     });
@@ -246,8 +243,8 @@
                     $("#ItemTable").append(`<tr><td>` + res[i].code + `</td><td>` + res[i].description + `</td><td>` + res[i].qty + `</td><td>` + res[i].unitPrice);
                 }
                 blindClickEvents();
+                setTextFieldValues("", "", "", "");
             }
-
         });
     }
 
@@ -267,11 +264,11 @@
         });
     }
 
-    function clearCusTextFields() {
-        txtItemID.value = '';
-        txtItemName.value = '';
-        txtItemQty.value = '';
-        txtItemPrice.value = '';
+    function setTextFieldValues(code,description,qty,price) {
+        $("#txtItemID").val(code);
+        $("#txtItemName").val(description);
+        $("#txtItemQty").val(qty);
+        $("#txtItemPrice").val(price);
         $("#txtItemID").focus();
 
     }
