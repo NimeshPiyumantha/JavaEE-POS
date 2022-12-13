@@ -230,7 +230,12 @@
             contentType: "application/json",
             data: JSON.stringify(itemOb),
             success: function (res) {
+                alert(res.message);
                 loadAllItems();
+            },
+            error: function (error) {
+                let message = JSON.parse(error.responseText).message;
+                alert(message);
             }
         });
     });
@@ -280,7 +285,7 @@
         });
     }
 
-    function setTextFieldValues(code,description,qty,price) {
+    function setTextFieldValues(code, description, qty, price) {
         $("#txtItemID").val(code);
         $("#txtItemName").val(description);
         $("#txtItemQty").val(qty);
