@@ -109,6 +109,7 @@ public class CustomerServlet extends HttpServlet {
         String name = customer.getString("name");
         String address = customer.getString("address");
         double salary = Double.parseDouble(customer.getString("salary"));
+        resp.setContentType("application/json");
 
         //Update Customer
         CustomerDTO cU = new CustomerDTO(id, name, address, salary);
