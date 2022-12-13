@@ -41,16 +41,16 @@ public class CustomerServlet extends HttpServlet {
             resp.addHeader("Content-Type", "application/json");
 
             JsonObjectBuilder job = Json.createObjectBuilder();
-            job.add("state","Ok");
-            job.add("message","Successfully Loaded..!");
-            job.add("data",allCustomers.build());
+            job.add("state", "Ok");
+            job.add("message", "Successfully Loaded..!");
+            job.add("data", allCustomers.build());
             resp.getWriter().print(job.build());
 
         } catch (ClassNotFoundException | SQLException e) {
             JsonObjectBuilder rjo = Json.createObjectBuilder();
-            rjo.add("state","Error");
-            rjo.add("message",e.getLocalizedMessage());
-            rjo.add("data","");
+            rjo.add("state", "Error");
+            rjo.add("message", e.getLocalizedMessage());
+            rjo.add("data", "");
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().print(rjo.build());
         }
@@ -68,11 +68,28 @@ public class CustomerServlet extends HttpServlet {
         try {
             //Save Customer
             CustomerDTO c = new CustomerDTO(id, name, address, salary);
-            CrudUtil.execute("INSERT INTO Customer VALUES (?,?,?,?)", c.getId(), c.getName(), c.getAddress(), c.getSalary());
+            boolean b = CrudUtil.execute("INSERT INTO Customer VALUES (?,?,?,?)", c.getId(), c.getName(), c.getAddress(), c.getSalary());
+            if (b) {
+                JsonObjectBuilder responseObject = Json.createObjectBuilder();
+                responseObject.add("state", "Ok");
+                responseObject.add("message", "Successfully added..!");
+                responseObject.add("data", "");
+                resp.getWriter().print(responseObject.build());
+            }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            JsonObjectBuilder error = Json.createObjectBuilder();
+            error.add("state", "Error");
+            error.add("message", e.getLocalizedMessage());
+            error.add("data", "");
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().print(error.build());
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            JsonObjectBuilder error = Json.createObjectBuilder();
+            error.add("state", "Error");
+            error.add("message", e.getLocalizedMessage());
+            error.add("data", "");
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().print(error.build());
         }
     }
 

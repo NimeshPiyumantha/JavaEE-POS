@@ -175,8 +175,13 @@
             url: "customer",
             method: "post",
             data: formData,
+            dataType: "json",
             success: function (res) {
+                alert(res.message);
                 loadAllCustomer();
+            },
+            error: function (error) {
+                alert(JSON.parse(error.responseText).message);
             }
         });
     });
@@ -263,7 +268,7 @@
 
 
     function blindClickEvents() {
-        $("#customerTable>tr").on( "click", function() {
+        $("#customerTable>tr").on("click", function () {
             let id = $(this).children().eq(0).text();
             let name = $(this).children().eq(1).text();
             let address = $(this).children().eq(2).text();
@@ -278,7 +283,7 @@
     }
 
     //Set text fields values function
-    function setTextFieldValues(id,name,address,salary) {
+    function setTextFieldValues(id, name, address, salary) {
         $("#txtCusId").val(id);
         $("#txtCusName").val(name);
         $("#txtCusAddress").val(address);
