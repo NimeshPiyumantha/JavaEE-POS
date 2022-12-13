@@ -69,11 +69,34 @@ public class ItemServlet extends HttpServlet {
         try {
             //Save Item
             ItemDTO i = new ItemDTO(code, description, qty, unitPrice);
-            CrudUtil.execute("INSERT INTO Item VALUES (?,?,?,?)", i.getCode(), i.getDescription(), i.getQty(), i.getUnitPrice());
+            boolean b = CrudUtil.execute("INSERT INTO Item VALUES (?,?,?,?)", i.getCode(), i.getDescription(), i.getQty(), i.getUnitPrice());
+            if (b) {
+
+                JsonObjectBuilder responseObject = Json.createObjectBuilder();
+                responseObject.add("state","Ok");
+                responseObject.add("message","Successfully added..!");
+                responseObject.add("data","");
+                resp.getWriter().print(responseObject.build());
+
+            }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+
+            JsonObjectBuilder error = Json.createObjectBuilder();
+            error.add("state","Error");
+            error.add("message",e.getLocalizedMessage());
+            error.add("data","");
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().print(error.build());
+
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+
+            JsonObjectBuilder error = Json.createObjectBuilder();
+            error.add("state","Error");
+            error.add("message",e.getLocalizedMessage());
+            error.add("data","");
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().print(error.build());
+
         }
     }
 
