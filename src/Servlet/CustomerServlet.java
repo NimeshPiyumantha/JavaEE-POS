@@ -128,14 +128,39 @@ public class CustomerServlet extends HttpServlet {
         JsonObject customer = reader.readObject();
 
         String id = customer.getString("id");
-
+        resp.setContentType("application/json");
         //Delete Customer
         try {
-            CrudUtil.execute("DELETE FROM Customer WHERE id=?", id);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            boolean b = CrudUtil.execute("DELETE FROM Customer WHERE id=?", id);
+            if (b) {
+
+                JsonObjectBuilder rjo = Json.createObjectBuilder();
+                rjo.add("state", "Ok");
+                rjo.add("message", "Successfully Deleted..!");
+                rjo.add("data", "");
+                resp.getWriter().print(rjo.build());
+
+            } else {
+                throw new RuntimeException("There is no such customer for that ID..!");
+            }
+        } catch (RuntimeException e) {
+
+            JsonObjectBuilder rjo = Json.createObjectBuilder();
+            rjo.add("state", "Error");
+            rjo.add("message", e.getLocalizedMessage());
+            rjo.add("data", "");
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().print(rjo.build());
+
+        } catch (ClassNotFoundException | SQLException e) {
+
+            JsonObjectBuilder rjo = Json.createObjectBuilder();
+            rjo.add("state", "Error");
+            rjo.add("message", e.getLocalizedMessage());
+            rjo.add("data", "");
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().print(rjo.build());
+
         }
     }
 }
