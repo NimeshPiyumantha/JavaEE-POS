@@ -113,11 +113,37 @@ public class CustomerServlet extends HttpServlet {
         //Update Customer
         CustomerDTO cU = new CustomerDTO(id, name, address, salary);
         try {
-            CrudUtil.execute("UPDATE Customer SET name= ? , address=? , salary=? WHERE id=?", cU.getName(), cU.getAddress(), cU.getSalary(), cU.getId());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            boolean b = CrudUtil.execute("UPDATE Customer SET name= ? , address=? , salary=? WHERE id=?", cU.getName(), cU.getAddress(), cU.getSalary(), cU.getId());
+            if (b) {
+
+                JsonObjectBuilder responseObject = Json.createObjectBuilder();
+                responseObject.add("state", "Ok");
+                responseObject.add("message", "Successfully Updated..!");
+                responseObject.add("data", "");
+                resp.getWriter().print(responseObject.build());
+
+            } else {
+                throw new RuntimeException("Wrong ID, Please Check The ID..!");
+            }
+
+        } catch (RuntimeException e) {
+
+            JsonObjectBuilder rjo = Json.createObjectBuilder();
+            rjo.add("state", "Error");
+            rjo.add("message", e.getLocalizedMessage());
+            rjo.add("data", "");
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().print(rjo.build());
+
+        } catch (ClassNotFoundException | SQLException e) {
+
+            JsonObjectBuilder rjo = Json.createObjectBuilder();
+            rjo.add("state", "Error");
+            rjo.add("message", e.getLocalizedMessage());
+            rjo.add("data", "");
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().print(rjo.build());
+
         }
 
     }

@@ -42,16 +42,16 @@ public class ItemServlet extends HttpServlet {
             resp.addHeader("Content-Type", "application/json");
 
             JsonObjectBuilder job = Json.createObjectBuilder();
-            job.add("state","Ok");
-            job.add("message","Successfully Loaded..!");
-            job.add("data",allItems.build());
+            job.add("state", "Ok");
+            job.add("message", "Successfully Loaded..!");
+            job.add("data", allItems.build());
             resp.getWriter().print(job.build());
 
         } catch (ClassNotFoundException | SQLException e) {
             JsonObjectBuilder rjo = Json.createObjectBuilder();
-            rjo.add("state","Error");
-            rjo.add("message",e.getLocalizedMessage());
-            rjo.add("data","");
+            rjo.add("state", "Error");
+            rjo.add("message", e.getLocalizedMessage());
+            rjo.add("data", "");
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().print(rjo.build());
         }
@@ -73,27 +73,27 @@ public class ItemServlet extends HttpServlet {
             if (b) {
 
                 JsonObjectBuilder responseObject = Json.createObjectBuilder();
-                responseObject.add("state","Ok");
-                responseObject.add("message","Successfully added..!");
-                responseObject.add("data","");
+                responseObject.add("state", "Ok");
+                responseObject.add("message", "Successfully added..!");
+                responseObject.add("data", "");
                 resp.getWriter().print(responseObject.build());
 
             }
         } catch (SQLException e) {
 
             JsonObjectBuilder error = Json.createObjectBuilder();
-            error.add("state","Error");
-            error.add("message",e.getLocalizedMessage());
-            error.add("data","");
+            error.add("state", "Error");
+            error.add("message", e.getLocalizedMessage());
+            error.add("data", "");
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().print(error.build());
 
         } catch (ClassNotFoundException e) {
 
             JsonObjectBuilder error = Json.createObjectBuilder();
-            error.add("state","Error");
-            error.add("message",e.getLocalizedMessage());
-            error.add("data","");
+            error.add("state", "Error");
+            error.add("message", e.getLocalizedMessage());
+            error.add("data", "");
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().print(error.build());
 
@@ -117,30 +117,30 @@ public class ItemServlet extends HttpServlet {
             if (b) {
 
                 JsonObjectBuilder responseObject = Json.createObjectBuilder();
-                responseObject.add("state","Ok");
-                responseObject.add("message","Successfully Updated..!");
-                responseObject.add("data","");
+                responseObject.add("state", "Ok");
+                responseObject.add("message", "Successfully Updated..!");
+                responseObject.add("data", "");
                 resp.getWriter().print(responseObject.build());
 
-            }else{
+            } else {
                 throw new RuntimeException("Wrong Code, Please Check The Code..!");
             }
 
         } catch (RuntimeException e) {
 
             JsonObjectBuilder rjo = Json.createObjectBuilder();
-            rjo.add("state","Error");
-            rjo.add("message",e.getLocalizedMessage());
-            rjo.add("data","");
+            rjo.add("state", "Error");
+            rjo.add("message", e.getLocalizedMessage());
+            rjo.add("data", "");
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().print(rjo.build());
 
-        } catch (ClassNotFoundException | SQLException e){
+        } catch (ClassNotFoundException | SQLException e) {
 
             JsonObjectBuilder rjo = Json.createObjectBuilder();
-            rjo.add("state","Error");
-            rjo.add("message",e.getLocalizedMessage());
-            rjo.add("data","");
+            rjo.add("state", "Error");
+            rjo.add("message", e.getLocalizedMessage());
+            rjo.add("data", "");
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().print(rjo.build());
 
@@ -156,33 +156,33 @@ public class ItemServlet extends HttpServlet {
         resp.setContentType("application/json");
         //Delete Item
         try {
-           boolean b = CrudUtil.execute("DELETE FROM Item WHERE code=?", code);
+            boolean b = CrudUtil.execute("DELETE FROM Item WHERE code=?", code);
             if (b) {
 
                 JsonObjectBuilder rjo = Json.createObjectBuilder();
-                rjo.add("state","Ok");
-                rjo.add("message","Successfully Deleted..!");
-                rjo.add("data","");
+                rjo.add("state", "Ok");
+                rjo.add("message", "Successfully Deleted..!");
+                rjo.add("data", "");
                 resp.getWriter().print(rjo.build());
 
-            }else{
+            } else {
                 throw new RuntimeException("There is no such Item for that ID..!");
             }
         } catch (RuntimeException e) {
 
             JsonObjectBuilder rjo = Json.createObjectBuilder();
-            rjo.add("state","Error");
-            rjo.add("message",e.getLocalizedMessage());
-            rjo.add("data","");
+            rjo.add("state", "Error");
+            rjo.add("message", e.getLocalizedMessage());
+            rjo.add("data", "");
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().print(rjo.build());
 
-        } catch (ClassNotFoundException | SQLException e){
+        } catch (ClassNotFoundException | SQLException e) {
 
             JsonObjectBuilder rjo = Json.createObjectBuilder();
-            rjo.add("state","Error");
-            rjo.add("message",e.getLocalizedMessage());
-            rjo.add("data","");
+            rjo.add("state", "Error");
+            rjo.add("message", e.getLocalizedMessage());
+            rjo.add("data", "");
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().print(rjo.build());
 
