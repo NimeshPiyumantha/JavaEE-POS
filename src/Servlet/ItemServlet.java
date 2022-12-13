@@ -109,15 +109,41 @@ public class ItemServlet extends HttpServlet {
         String description = item.getString("description");
         int qty = Integer.parseInt(item.getString("qty"));
         double unitPrice = Double.parseDouble(item.getString("unitPrice"));
-
+        resp.setContentType("application/json");
         //Update Item
         ItemDTO iU = new ItemDTO(code, description, qty, unitPrice);
         try {
-            CrudUtil.execute("UPDATE Item SET description= ? , qtyOnHand=? , unitPrice=? WHERE code=?", iU.getDescription(), iU.getQty(), iU.getUnitPrice(), iU.getCode());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            boolean b = CrudUtil.execute("UPDATE Item SET description= ? , qtyOnHand=? , unitPrice=? WHERE code=?", iU.getDescription(), iU.getQty(), iU.getUnitPrice(), iU.getCode());
+            if (b) {
+
+                JsonObjectBuilder responseObject = Json.createObjectBuilder();
+                responseObject.add("state","Ok");
+                responseObject.add("message","Successfully Updated..!");
+                responseObject.add("data","");
+                resp.getWriter().print(responseObject.build());
+
+            }else{
+                throw new RuntimeException("Wrong Code, Please Check The Code..!");
+            }
+
+        } catch (RuntimeException e) {
+
+            JsonObjectBuilder rjo = Json.createObjectBuilder();
+            rjo.add("state","Error");
+            rjo.add("message",e.getLocalizedMessage());
+            rjo.add("data","");
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().print(rjo.build());
+
+        } catch (ClassNotFoundException | SQLException e){
+
+            JsonObjectBuilder rjo = Json.createObjectBuilder();
+            rjo.add("state","Error");
+            rjo.add("message",e.getLocalizedMessage());
+            rjo.add("data","");
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().print(rjo.build());
+
         }
     }
 

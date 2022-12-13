@@ -206,7 +206,12 @@
             contentType: "application/json",
             data: JSON.stringify(itemOb),
             success: function (res) {
+                alert(res.message);
                 loadAllItems();
+            },
+            error: function (error) {
+                let message = JSON.parse(error.responseText).message;
+                alert(message);
             }
         });
     });
