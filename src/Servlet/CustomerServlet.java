@@ -70,26 +70,32 @@ public class CustomerServlet extends HttpServlet {
             CustomerDTO c = new CustomerDTO(id, name, address, salary);
             boolean b = CrudUtil.execute("INSERT INTO Customer VALUES (?,?,?,?)", c.getId(), c.getName(), c.getAddress(), c.getSalary());
             if (b) {
+
                 JsonObjectBuilder responseObject = Json.createObjectBuilder();
                 responseObject.add("state", "Ok");
                 responseObject.add("message", "Successfully added..!");
                 responseObject.add("data", "");
                 resp.getWriter().print(responseObject.build());
+
             }
         } catch (SQLException e) {
+
             JsonObjectBuilder error = Json.createObjectBuilder();
             error.add("state", "Error");
             error.add("message", e.getLocalizedMessage());
             error.add("data", "");
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().print(error.build());
+
         } catch (ClassNotFoundException e) {
+
             JsonObjectBuilder error = Json.createObjectBuilder();
             error.add("state", "Error");
             error.add("message", e.getLocalizedMessage());
             error.add("data", "");
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().print(error.build());
+
         }
     }
 
