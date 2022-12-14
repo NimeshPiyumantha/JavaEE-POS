@@ -34,7 +34,6 @@ public class ItemServlet extends HttpServlet {
         PrintWriter writer = resp.getWriter();
         if (option.equals("searchItemCode")) {
             try {
-                System.out.println(code);
                 ResultSet result = CrudUtil.execute("SELECT * FROM Item WHERE code=?", code);
                 if (result.next()) {
                     JsonObjectBuilder item = Json.createObjectBuilder();
@@ -43,7 +42,7 @@ public class ItemServlet extends HttpServlet {
                     item.add("qty", String.valueOf(result.getInt(3)));
                     item.add("unitPrice", String.valueOf(result.getDouble(4)));
                     writer.print(item.build());
-                    System.out.println(item);
+
                 } else {
                     throw new RuntimeException("Empty Result..!");
                 }

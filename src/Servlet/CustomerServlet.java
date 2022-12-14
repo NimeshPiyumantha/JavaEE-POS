@@ -33,7 +33,6 @@ public class CustomerServlet extends HttpServlet {
         PrintWriter writer = resp.getWriter();
         if (option.equals("searchCusId")) {
             try {
-                System.out.println(id);
                 ResultSet result = CrudUtil.execute("SELECT * FROM Customer WHERE id=?", id);
                 if (result.next()) {
                     JsonObjectBuilder customer = Json.createObjectBuilder();
@@ -42,7 +41,7 @@ public class CustomerServlet extends HttpServlet {
                     customer.add("address", result.getString(3));
                     customer.add("salary", String.valueOf(result.getDouble(4)));
                     writer.print(customer.build());
-                    System.out.println(customer);
+
                 } else {
                     throw new RuntimeException("Empty Result..!");
                 }
