@@ -57,7 +57,7 @@ public class CustomerServlet extends HttpServlet {
                 resp.getWriter().print(rjo.build());
             }
 
-        } else if (option.equals("loadAll")) {
+        } else if (option.equals("loadAllCustomer")) {
             try {
                 ResultSet result = CrudUtil.execute("SELECT * FROM Customer");
                 while (result.next()) {

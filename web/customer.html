@@ -275,7 +275,7 @@
     function loadAllCustomer() {
         $("#customerTable").empty();
         $.ajax({
-            url: "customer?option=loadAll",
+            url: "customer?option=loadAllCustomer",
             method: "GET",
             dataType: "json",
             success: function (res) {

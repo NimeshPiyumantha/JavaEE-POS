@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -25,35 +26,67 @@ public class ItemServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ArrayList<ItemDTO> obList = new ArrayList<>();
         JsonArrayBuilder allItems = Json.createArrayBuilder();
+        resp.addHeader("Content-Type", "application/json");
 
-        try {
-            ResultSet result = CrudUtil.execute("SELECT * FROM Item");
-            while (result.next()) {
-                obList.add(new ItemDTO(result.getString(1), result.getString(2), result.getInt(3), result.getDouble(4)));
+        String code = req.getParameter("code");
+        String option = req.getParameter("option");
+
+        PrintWriter writer = resp.getWriter();
+        if (option.equals("searchItemCode")) {
+            try {
+                System.out.println(code);
+                ResultSet result = CrudUtil.execute("SELECT * FROM Item WHERE code=?", code);
+                if (result.next()) {
+                    JsonObjectBuilder item = Json.createObjectBuilder();
+                    item.add("code", result.getString(1));
+                    item.add("description", result.getString(2));
+                    item.add("qty", String.valueOf(result.getInt(3)));
+                    item.add("unitPrice", String.valueOf(result.getDouble(4)));
+                    writer.print(item.build());
+                    System.out.println(item);
+                } else {
+                    throw new RuntimeException("Empty Result..!");
+                }
+
+            } catch (SQLException | ClassNotFoundException e) {
+
+                JsonObjectBuilder rjo = Json.createObjectBuilder();
+                rjo.add("state", "Error");
+                rjo.add("message", e.getLocalizedMessage());
+                rjo.add("data", "");
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                resp.getWriter().print(rjo.build());
             }
-            for (ItemDTO itemDTO : obList) {
-                JsonObjectBuilder item = Json.createObjectBuilder();
-                item.add("code", itemDTO.getCode());
-                item.add("description", itemDTO.getDescription());
-                item.add("qty", itemDTO.getQty());
-                item.add("unitPrice", itemDTO.getUnitPrice());
-                allItems.add(item.build());
+
+        } else if (option.equals("loadAllItem")) {
+            try {
+                ResultSet result = CrudUtil.execute("SELECT * FROM Item");
+                while (result.next()) {
+                    obList.add(new ItemDTO(result.getString(1), result.getString(2), result.getInt(3), result.getDouble(4)));
+                }
+                for (ItemDTO itemDTO : obList) {
+                    JsonObjectBuilder item = Json.createObjectBuilder();
+                    item.add("code", itemDTO.getCode());
+                    item.add("description", itemDTO.getDescription());
+                    item.add("qty", itemDTO.getQty());
+                    item.add("unitPrice", itemDTO.getUnitPrice());
+                    allItems.add(item.build());
+                }
+
+                JsonObjectBuilder job = Json.createObjectBuilder();
+                job.add("state", "Ok");
+                job.add("message", "Successfully Loaded..!");
+                job.add("data", allItems.build());
+                resp.getWriter().print(job.build());
+
+            } catch (ClassNotFoundException | SQLException e) {
+                JsonObjectBuilder rjo = Json.createObjectBuilder();
+                rjo.add("state", "Error");
+                rjo.add("message", e.getLocalizedMessage());
+                rjo.add("data", "");
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                resp.getWriter().print(rjo.build());
             }
-            resp.addHeader("Content-Type", "application/json");
-
-            JsonObjectBuilder job = Json.createObjectBuilder();
-            job.add("state", "Ok");
-            job.add("message", "Successfully Loaded..!");
-            job.add("data", allItems.build());
-            resp.getWriter().print(job.build());
-
-        } catch (ClassNotFoundException | SQLException e) {
-            JsonObjectBuilder rjo = Json.createObjectBuilder();
-            rjo.add("state", "Error");
-            rjo.add("message", e.getLocalizedMessage());
-            rjo.add("data", "");
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().print(rjo.build());
         }
     }
 

@@ -245,11 +245,34 @@
         });
     });
 
+    $("#ItemIdSearch").on("keypress", function (event) {
+        if (event.which === 13) {
+            var search = $("#ItemIdSearch").val();
+            $("#ItemTable").empty();
+            $.ajax({
+                url: "item?code=" + search + "&option=searchItemCode",
+                method: "GET",
+                contentType: "application/json",
+                dataType: "json",
+                success: function (res) {
+                    console.log(res);
+                    let row = "<tr><td>" + res.code + "</td><td>" + res.description + "</td><td>" + res.qty + "</td><td>" + res.unitPrice + "</td></tr>";
+                    $("#ItemTable").append(row);
+                    blindClickEvents();
+                },
+                error: function (error) {
+                    loadAllItems();
+                    let message = JSON.parse(error.responseText).message;
+                    alert(message);
+                }
+            })
+        }
+    });
 
     function loadAllItems() {
         $("#ItemTable").empty();
         $.ajax({
-            url: "item",
+            url: "item?option=loadAllItem",
             method: "GET",
             dataType: "json",
             success: function (res) {
@@ -273,7 +296,6 @@
             }
         });
     }
-
 
     function blindClickEvents() {
         $("#ItemTable>tr").on("click", function () {
