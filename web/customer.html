@@ -99,6 +99,7 @@
 
                     <button class="btn btn-danger mt-2 m-2" id="btnDeleteCustomer" type="button">Delete Customer
                     </button>
+
                 </div>
             </div>
             <!-- Customer Details Search Section End -->
@@ -148,7 +149,7 @@
                             <th>ID</th>
                             <th>Name</th>
                             <th>Address</th>
-                            <th>Contact Number</th>
+                            <th>Salary</th>
                         </tr>
                         </thead>
                         <tbody id="customerTable"></tbody>
@@ -246,10 +247,36 @@
         });
     });
 
+    $("#searchCusId").on("keypress", function (event) {
+        if (event.which === 13) {
+            var search = $("#searchCusId").val();
+            $("#customerTable").empty();
+            $.ajax({
+                url: "customer?id=" + search + "&option=searchCusId",
+                method: "GET",
+                contentType: "application/json",
+                dataType: "json",
+                success: function (res) {
+                    console.log(res);
+                    let row = "<tr><td>" + res.id + "</td><td>" + res.name + "</td><td>" + res.address + "</td><td>" + res.salary + "</td></tr>";
+                    $("#customerTable").append(row);
+                    blindClickEvents();
+                },
+                error: function (error) {
+                    loadAllCustomer();
+                    let message = JSON.parse(error.responseText).message;
+                    alert(message);
+                }
+            })
+        }
+
+    });
+
+
     function loadAllCustomer() {
         $("#customerTable").empty();
         $.ajax({
-            url: "customer",
+            url: "customer?option=loadAll",
             method: "GET",
             dataType: "json",
             success: function (res) {

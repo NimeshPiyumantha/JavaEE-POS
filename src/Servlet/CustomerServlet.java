@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -24,35 +25,67 @@ public class CustomerServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ArrayList<CustomerDTO> obList = new ArrayList<>();
         JsonArrayBuilder allCustomers = Json.createArrayBuilder();
-        try {
-            ResultSet result = CrudUtil.execute("SELECT * FROM Customer");
-            while (result.next()) {
-                obList.add(new CustomerDTO(result.getString(1), result.getString(2), result.getString(3), result.getDouble(4)));
+        resp.addHeader("Content-Type", "application/json");
+
+        String id = req.getParameter("id");
+        String option = req.getParameter("option");
+
+        PrintWriter writer = resp.getWriter();
+        if (option.equals("searchCusId")) {
+            try {
+                System.out.println(id);
+                ResultSet result = CrudUtil.execute("SELECT * FROM Customer WHERE id=?", id);
+                if (result.next()) {
+                    JsonObjectBuilder customer = Json.createObjectBuilder();
+                    customer.add("id", result.getString(1));
+                    customer.add("name", result.getString(2));
+                    customer.add("address", result.getString(3));
+                    customer.add("salary", String.valueOf(result.getDouble(4)));
+                    writer.print(customer.build());
+                    System.out.println(customer);
+                } else {
+                    throw new RuntimeException("Empty Result..!");
+                }
+
+            } catch (SQLException | ClassNotFoundException e) {
+
+                JsonObjectBuilder rjo = Json.createObjectBuilder();
+                rjo.add("state", "Error");
+                rjo.add("message", e.getLocalizedMessage());
+                rjo.add("data", "");
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                resp.getWriter().print(rjo.build());
             }
-            for (CustomerDTO customerDTO : obList) {
-                JsonObjectBuilder customer = Json.createObjectBuilder();
-                customer.add("id", customerDTO.getId());
-                customer.add("name", customerDTO.getName());
-                customer.add("address", customerDTO.getAddress());
-                customer.add("salary", customerDTO.getSalary());
-                allCustomers.add(customer.build());
+
+        } else if (option.equals("loadAll")) {
+            try {
+                ResultSet result = CrudUtil.execute("SELECT * FROM Customer");
+                while (result.next()) {
+                    obList.add(new CustomerDTO(result.getString(1), result.getString(2), result.getString(3), result.getDouble(4)));
+                }
+                for (CustomerDTO customerDTO : obList) {
+                    JsonObjectBuilder customer = Json.createObjectBuilder();
+                    customer.add("id", customerDTO.getId());
+                    customer.add("name", customerDTO.getName());
+                    customer.add("address", customerDTO.getAddress());
+                    customer.add("salary", customerDTO.getSalary());
+                    allCustomers.add(customer.build());
+                }
+
+                JsonObjectBuilder job = Json.createObjectBuilder();
+                job.add("state", "Ok");
+                job.add("message", "Successfully Loaded..!");
+                job.add("data", allCustomers.build());
+                resp.getWriter().print(job.build());
+
+            } catch (ClassNotFoundException | SQLException e) {
+                JsonObjectBuilder rjo = Json.createObjectBuilder();
+                rjo.add("state", "Error");
+                rjo.add("message", e.getLocalizedMessage());
+                rjo.add("data", "");
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                resp.getWriter().print(rjo.build());
             }
-
-            resp.addHeader("Content-Type", "application/json");
-
-            JsonObjectBuilder job = Json.createObjectBuilder();
-            job.add("state", "Ok");
-            job.add("message", "Successfully Loaded..!");
-            job.add("data", allCustomers.build());
-            resp.getWriter().print(job.build());
-
-        } catch (ClassNotFoundException | SQLException e) {
-            JsonObjectBuilder rjo = Json.createObjectBuilder();
-            rjo.add("state", "Error");
-            rjo.add("message", e.getLocalizedMessage());
-            rjo.add("data", "");
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().print(rjo.build());
         }
     }
 
