@@ -26,6 +26,7 @@ public class CustomerServlet extends HttpServlet {
         ArrayList<CustomerDTO> obList = new ArrayList<>();
         JsonArrayBuilder allCustomers = Json.createArrayBuilder();
         resp.addHeader("Content-Type", "application/json");
+        resp.addHeader("Access-Control-Allow-Origin", "*");
 
         String id = req.getParameter("id");
         String option = req.getParameter("option");
@@ -97,6 +98,8 @@ public class CustomerServlet extends HttpServlet {
         String address = req.getParameter("txtCusAddress");
         double salary = Double.parseDouble(req.getParameter("txtCustomerSalary"));
 
+        resp.addHeader("Access-Control-Allow-Origin", "*");
+
         try {
             //Save Customer
             CustomerDTO c = new CustomerDTO(id, name, address, salary);
@@ -142,6 +145,7 @@ public class CustomerServlet extends HttpServlet {
         String address = customer.getString("address");
         double salary = Double.parseDouble(customer.getString("salary"));
         resp.setContentType("application/json");
+        resp.addHeader("Access-Control-Allow-Origin", "*");
 
         //Update Customer
         CustomerDTO cU = new CustomerDTO(id, name, address, salary);
@@ -188,6 +192,7 @@ public class CustomerServlet extends HttpServlet {
 
         String id = customer.getString("id");
         resp.setContentType("application/json");
+        resp.addHeader("Access-Control-Allow-Origin", "*");
         //Delete Customer
         try {
             boolean b = CrudUtil.execute("DELETE FROM Customer WHERE id=?", id);
@@ -221,6 +226,13 @@ public class CustomerServlet extends HttpServlet {
             resp.getWriter().print(rjo.build());
 
         }
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.addHeader("Access-Control-Allow-Origin", "*");
+        resp.addHeader("Access-Control-Allow-Methods", "PUT,DELETE");
+        resp.addHeader("Access-Control-Allow-Headers", "content-type");
     }
 }
 

@@ -27,6 +27,7 @@ public class ItemServlet extends HttpServlet {
         ArrayList<ItemDTO> obList = new ArrayList<>();
         JsonArrayBuilder allItems = Json.createArrayBuilder();
         resp.addHeader("Content-Type", "application/json");
+        resp.addHeader("Access-Control-Allow-Origin", "*");
 
         String code = req.getParameter("code");
         String option = req.getParameter("option");
@@ -97,6 +98,8 @@ public class ItemServlet extends HttpServlet {
         int qty = Integer.parseInt(req.getParameter("txtItemQty"));
         double unitPrice = Double.parseDouble(req.getParameter("txtItemPrice"));
 
+        resp.addHeader("Access-Control-Allow-Origin", "*");
+
 
         try {
             //Save Item
@@ -142,6 +145,7 @@ public class ItemServlet extends HttpServlet {
         int qty = Integer.parseInt(item.getString("qty"));
         double unitPrice = Double.parseDouble(item.getString("unitPrice"));
         resp.setContentType("application/json");
+        resp.addHeader("Access-Control-Allow-Origin", "*");
         //Update Item
         ItemDTO iU = new ItemDTO(code, description, qty, unitPrice);
         try {
@@ -186,6 +190,7 @@ public class ItemServlet extends HttpServlet {
 
         String code = item.getString("code");
         resp.setContentType("application/json");
+        resp.addHeader("Access-Control-Allow-Origin", "*");
         //Delete Item
         try {
             boolean b = CrudUtil.execute("DELETE FROM Item WHERE code=?", code);
@@ -219,5 +224,12 @@ public class ItemServlet extends HttpServlet {
             resp.getWriter().print(rjo.build());
 
         }
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.addHeader("Access-Control-Allow-Origin", "*");
+        resp.addHeader("Access-Control-Allow-Methods", "PUT,DELETE");
+        resp.addHeader("Access-Control-Allow-Headers", "content-type");
     }
 }
