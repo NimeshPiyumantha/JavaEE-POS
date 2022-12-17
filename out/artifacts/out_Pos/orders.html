@@ -87,7 +87,7 @@
                 <div class="row mt-1">
                     <div class="col-12 col-md-6 col-lg-6">
                         <label class="fw-bold" for="orderId">Order ID :</label>
-                        <input class="form-control border-dark" disabled id="orderId" type="text" value="ODI-1001">
+                        <input class="form-control border-dark" id="orderId" type="text" value="ODI-0001">
                     </div>
                     <div class="col-12 col-md-6 col-lg-6">
                         <label class="fw-bold" for="orderDate">Order Date :</label>
@@ -236,7 +236,7 @@
 <script rel="script" src="util/validation.js"></script>
 
 <script>
-
+    generateOrderID();
     /** Customers cmb Load */
     $("#cmbCustomerId").empty();
     $.ajax({
@@ -510,21 +510,47 @@
      * placeOrder to Order Array
      * method
      * */
-   /* function placeOrder() {
-        //create object
-        let orderArrayList = new orderDTO(
-            $("#orderId").val(),
-            $("#cmbCustomerId").val(),
-            $("#orderDate").val(),
-            $("#txtSubTotal").val(),
-            $("#txtDiscount").val()
-        );
+    /* function placeOrder() {
+         //create object
+         let orderArrayList = new orderDTO(
+             $("#orderId").val(),
+             $("#cmbCustomerId").val(),
+             $("#orderDate").val(),
+             $("#txtSubTotal").val(),
+             $("#txtDiscount").val()
+         );
 
-        orders.push(orderArrayList);
-        console.log(orderArrayList);
+         orders.push(orderArrayList);
+         console.log(orderArrayList);
 
-        saveUpdateAlert("Place Ordering", "Successfully.");
-    }*/
+         saveUpdateAlert("Place Ordering", "Successfully.");
+     }*/
+
+    function generateOrderID() {
+        $("#orderId").val("ODI-001");
+        $.ajax({
+            url: "orders?option=OrderId",
+            method: "GET",
+            contentType: "application/json",
+            dataType: "json",
+            success: function (resp) {
+                let orderId = resp.orderId;
+                let tempId = parseInt(orderId.split("-")[1]);
+                tempId = tempId + 1;
+                if (tempId <= 9) {
+                    $("#orderId").val("ODI-00" + tempId);
+                } else if (tempId <= 99) {
+                    $("#orderId").val("ODI-0" + tempId);
+                } else {
+                    $("#orderId").val("ODI-" + tempId);
+                }
+            },
+            error: function (ob, statusText, error) {
+
+            }
+        });
+    }
+
 
     /**
      * Logics
@@ -537,10 +563,10 @@
         var orderDetails = [];
         for (let i = 0; i < $("#tblAddToCart tr").length; i++) {
             var detailOb = {
-                orderId : $("#orderId").val(),
-                itemId : $("#tblAddToCart tr").children(':nth-child(1)')[i].innerText,
-                qty : $("#tblAddToCart tr").children(':nth-child(4)')[i].innerText,
-                unitPrice : $("#itemPrice").val()
+                orderId: $("#orderId").val(),
+                itemId: $("#tblAddToCart tr").children(':nth-child(1)')[i].innerText,
+                qty: $("#tblAddToCart tr").children(':nth-child(4)')[i].innerText,
+                unitPrice: $("#tblAddToCart tr").children(':nth-child(5)')[i].innerText
             }
             orderDetails.push(detailOb);
         }
@@ -564,7 +590,9 @@
             dataType: "json",
             data: JSON.stringify(orderOb),
             success: function (res) {
-                    alert(res.message);
+                alert(res.message);
+                generateOrderID();
+
             },
             error: function (error) {
                 let message = JSON.parse(error.responseText).message;
@@ -572,13 +600,9 @@
             }
         });
 
-        /*$("#orderId").val( generateOrderID());
         clearDetails();
         $("#tblAddToCart").empty();
-        $("#btnPurchase").attr('disabled', true);
-        $("#btnAddToCart").attr('disabled', true);
         total = 0;
-        $("#txtOrderCount").text(orders.length);*/
 
     });
 
@@ -606,29 +630,9 @@
      * Remove Row
      * */
 
-   /* $("#tblAddToCart").dblclick(function () {
-        Swal.fire({
-            title: 'Do you want to Delete the Select row?',
-            showDenyButton: true,
-            showCancelButton: true,
-            confirmButtonText: 'Yes',
-            denyButtonText: 'No',
-            customClass: {
-                actions: 'my-actions',
-                cancelButton: 'order-1 right-gap',
-                confirmButton: 'order-2',
-                denyButton: 'order-3',
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $(this).children('tr').eq(0).remove();
-                Swal.fire('Delete!', '', 'success')
-            } else if (result.isDenied) {
-                Swal.fire('Select row are not Delete', '', 'info')
-            }
-        })
-
-    });*/
+     $("#tblAddToCart").dblclick(function () {
+         $(this).children('tr').eq(0).remove();
+     });
 
     /**
      * Logics

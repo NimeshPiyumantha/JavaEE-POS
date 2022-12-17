@@ -95,10 +95,8 @@
                                 <thead class="text-light table-dark text-center  table-bordered sticky-top">
                                 <tr>
                                     <th>Order Id</th>
-                                    <th>Customer Id</th>
                                     <th>Order Date</th>
-                                    <th>Sub Total</th>
-                                    <th>Discount</th>
+                                    <th>Customer Id</th>
                                 </tr>
                                 </thead>
                                 <tbody id="tblOrder"></tbody>
@@ -121,7 +119,6 @@
                                 <thead class="text-light table-dark text-center  table-bordered sticky-top">
                                 <tr>
                                     <th>Order Id</th>
-                                    <th>Customer Id</th>
                                     <th>Item Code</th>
                                     <th>Qty</th>
                                     <th>Total</th>
@@ -148,5 +145,63 @@
 <!--import jQuery library-->
 <script rel="script" src="assets/styles/jQuery/jquery-3.6.1.min.js"></script>
 
+<script>
+    loadAllOrders();
+    loadAllOrderDetails();
+
+    function loadAllOrders() {
+        $("#tblOrder").empty();
+        $.ajax({
+            url: "orders?option=LoadOrders",
+            method: "GET",
+            dataType: "json",
+            success: function (res) {
+                console.log(res);
+
+                for (let i of res.data) {
+                    let orderId = i.orderId;
+                    let date = i.date;
+                    let cusId = i.cusId;
+
+                    let row = "<tr><td>" + orderId + "</td><td>" + date + "</td><td>" + cusId + "</td></tr>";
+                    $("#tblOrder").append(row);
+                }
+                alert(res.message);
+            },
+            error: function (error) {
+                let message = JSON.parse(error.responseText).message;
+                alert(message);
+            }
+
+        });
+    }
+    function loadAllOrderDetails() {
+        $("#tblOrderDetails").empty();
+        $.ajax({
+            url: "orders?option=LoadOrderDetails",
+            method: "GET",
+            dataType: "json",
+            success: function (res) {
+                console.log(res);
+
+                for (let i of res.data) {
+                    let OrderId = i.OrderId;
+                    let code = i.code;
+                    let qty = i.qty;
+                    let unitPrice = i.unitPrice;
+
+                    let row = "<tr><td>" + OrderId + "</td><td>" + code + "</td><td>" + qty + "</td><td>" + unitPrice + "</td></tr>";
+                    $("#tblOrderDetails").append(row);
+                }
+                alert(res.message);
+            },
+            error: function (error) {
+                let message = JSON.parse(error.responseText).message;
+                alert(message);
+            }
+
+        });
+    }
+</script>
 </body>
 </html>
