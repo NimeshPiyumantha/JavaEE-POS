@@ -66,17 +66,17 @@ SELECT *
 FROM Customer;
 
 INSERT INTO Item
-VALUES ('I00-001', 'Sugar', 110.00, 50),
-       ('I00-002', 'Samba Rice', 140.00, 30),
-       ('I00-003', 'Flour', 80.00, 50),
-       ('I00-004', 'Potato', 120.00, 30),
-       ('I00-005', 'Onions', 110.00, 30),
-       ('I00-006', 'Chocolate Biscuit', 170.00, 40),
-       ('I00-007', 'Cream Cracker', 160.00, 40),
-       ('I00-008', 'Chicken', 630.00, 60),
-       ('I00-009', 'Kakulu Rice', 105.00, 80),
-       ('I00-010', 'Noodles', 190.00, 90),
-       ('I00-011', 'Dhal', 108.00, 30);
+VALUES ('I00-001', 'Sugar', 50, 110.00),
+       ('I00-002', 'Samba Rice', 40, 140.00),
+       ('I00-003', 'Flour', 30, 80.00),
+       ('I00-004', 'Potato', 50, 120.00),
+       ('I00-005', 'Onions', 30, 110.00),
+       ('I00-006', 'Chocolate Biscuit', 30, 170.00),
+       ('I00-007', 'Cream Cracker', 40, 160.00),
+       ('I00-008', 'Chicken', 40, 630.00),
+       ('I00-009', 'Kakulu Rice',60, 105.00),
+       ('I00-010', 'Noodles', 80, 190.00),
+       ('I00-011', 'Dhal', 90, 108.00);
 
 SELECT *
 FROM Item;

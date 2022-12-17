@@ -149,7 +149,7 @@ public class ItemServlet extends HttpServlet {
         //Update Item
         ItemDTO iU = new ItemDTO(code, description, qty, unitPrice);
         try {
-            boolean b = CrudUtil.execute("UPDATE Item SET description= ? , qtyOnHand=? , unitPrice=? WHERE code=?", iU.getDescription(), iU.getQty(), iU.getUnitPrice(), iU.getCode());
+            boolean b = CrudUtil.execute("UPDATE Item SET description= ? , qty=? , unitPrice=? WHERE code=?", iU.getDescription(), iU.getQty(), iU.getUnitPrice(), iU.getCode());
             if (b) {
 
                 JsonObjectBuilder responseObject = Json.createObjectBuilder();
