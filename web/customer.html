@@ -110,25 +110,25 @@
                 <form action="customer" id="customerForm">
                     <div class="mb-3 ms-3 me-3 mt-3 ">
                         <label class="fw-bold" for="txtCusId">Customer ID :</label>
-                        <input class="form-control" id="txtCusId" type="text" name="txtCusId">
+                        <input class="form-control" id="txtCusId" type="text" name="id">
                         <span class="control-error"></span>
                     </div>
 
                     <div class="mb-3 ms-3 me-3 mt-3 ">
                         <label class="fw-bold" for="txtCusName">Customer Name :</label>
-                        <input class="form-control" id="txtCusName" type="text" name="txtCusName">
+                        <input class="form-control" id="txtCusName" type="text" name="name">
                         <span class="control-error"></span>
                     </div>
 
                     <div class="mb-3 ms-3 me-3 mt-3 ">
                         <label class="fw-bold" for="txtCusAddress">Customer Address :</label>
-                        <input class="form-control" id="txtCusAddress" type="text" name="txtCusAddress">
+                        <input class="form-control" id="txtCusAddress" type="text" name="address">
                         <span class="control-error"></span>
                     </div>
 
                     <div class="mb-3 ms-3 me-3 mt-3 ">
                         <label class="fw-bold" for="txtCustomerSalary">Customer Salary :</label>
-                        <input class="form-control" id="txtCustomerSalary" type="text" name="txtCustomerSalary">
+                        <input class="form-control" id="txtCustomerSalary" type="text" name="salary">
                         <span class="control-error"></span>
                     </div>
                 </form>
@@ -172,6 +172,7 @@
     loadAllCustomer();
     $("#btnSaveCustomer").click(function () {
         let formData = $("#customerForm").serialize();
+        console.log(formData);
         $.ajax({
             url: "customer",
             method: "post",

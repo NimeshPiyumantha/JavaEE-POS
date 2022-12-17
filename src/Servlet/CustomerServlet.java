@@ -93,10 +93,10 @@ public class CustomerServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-        String id = req.getParameter("txtCusId");
-        String name = req.getParameter("txtCusName");
-        String address = req.getParameter("txtCusAddress");
-        double salary = Double.parseDouble(req.getParameter("txtCustomerSalary"));
+        String id = req.getParameter("id");
+        String name = req.getParameter("name");
+        String address = req.getParameter("address");
+        double salary = Double.parseDouble(req.getParameter("salary"));
 
         resp.addHeader("Access-Control-Allow-Origin", "*");
 

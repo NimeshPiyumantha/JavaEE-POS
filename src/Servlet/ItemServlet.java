@@ -93,10 +93,10 @@ public class ItemServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        String code = req.getParameter("txtItemID");
-        String description = req.getParameter("txtItemName");
-        int qty = Integer.parseInt(req.getParameter("txtItemQty"));
-        double unitPrice = Double.parseDouble(req.getParameter("txtItemPrice"));
+        String code = req.getParameter("code");
+        String description = req.getParameter("description");
+        int qty = Integer.parseInt(req.getParameter("qty"));
+        double unitPrice = Double.parseDouble(req.getParameter("unitPrice"));
 
         resp.addHeader("Access-Control-Allow-Origin", "*");
 
