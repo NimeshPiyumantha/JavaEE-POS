@@ -169,13 +169,13 @@
 <script rel="script" src="assets/styles/jQuery/jquery-3.6.1.min.js"></script>
 
 <script>
-    let baseUrl="http://localhost:8080/Pos_JavaEE/";
+    let baseUrl = "http://localhost:8080/Pos_JavaEE/";
     loadAllCustomer();
     $("#btnSaveCustomer").click(function () {
         let formData = $("#customerForm").serialize();
         console.log(formData);
         $.ajax({
-            url: baseUrl+ "customer",
+            url: baseUrl + "customer",
             method: "post",
             data: formData,
             dataType: "json",
@@ -204,7 +204,7 @@
         };
 
         $.ajax({
-            url: baseUrl +"customer",
+            url: baseUrl + "customer",
             method: "put",
             contentType: "application/json",
             data: JSON.stringify(customerOb),
@@ -234,7 +234,7 @@
         };
 
         $.ajax({
-            url: baseUrl +"customer",
+            url: baseUrl + "customer",
             method: "delete",
             contentType: "application/json",
             data: JSON.stringify(customerOb),
@@ -254,7 +254,7 @@
             var search = $("#searchCusId").val();
             $("#customerTable").empty();
             $.ajax({
-                url: baseUrl +"customer?id=" + search + "&option=searchCusId",
+                url: baseUrl + "customer?id=" + search + "&option=searchCusId",
                 method: "GET",
                 contentType: "application/json",
                 dataType: "json",
@@ -277,7 +277,7 @@
     function loadAllCustomer() {
         $("#customerTable").empty();
         $.ajax({
-            url: baseUrl +"customer?option=loadAllCustomer",
+            url: baseUrl + "customer?option=loadAllCustomer",
             method: "GET",
             dataType: "json",
             success: function (res) {

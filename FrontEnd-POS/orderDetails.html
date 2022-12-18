@@ -71,7 +71,8 @@
     <!-- Order Header End -->
 
     <!-- Order Header Section Start -->
-    <div class="container d-flex flex-grow-1 flex-column sectionBorder" style="background-color: #dfe4ea;height: max-content">
+    <div class="container d-flex flex-grow-1 flex-column sectionBorder"
+         style="background-color: #dfe4ea;height: max-content">
         <div class="position-relative d-inline-block mt-3 mt-lg-4 mt-md-4">
             <h6 id="H6-4">Home > Orders Details</h6>
             <hr>
@@ -146,13 +147,14 @@
 <script rel="script" src="assets/styles/jQuery/jquery-3.6.1.min.js"></script>
 
 <script>
+    let baseUrl = "http://localhost:8080/Pos_JavaEE/";
     loadAllOrders();
     loadAllOrderDetails();
 
     function loadAllOrders() {
         $("#tblOrder").empty();
         $.ajax({
-            url: "orders?option=LoadOrders",
+            url: baseUrl + "orders?option=LoadOrders",
             method: "GET",
             dataType: "json",
             success: function (res) {
@@ -175,10 +177,11 @@
 
         });
     }
+
     function loadAllOrderDetails() {
         $("#tblOrderDetails").empty();
         $.ajax({
-            url: "orders?option=LoadOrderDetails",
+            url: baseUrl + "orders?option=LoadOrderDetails",
             method: "GET",
             dataType: "json",
             success: function (res) {
