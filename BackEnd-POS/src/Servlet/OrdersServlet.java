@@ -91,84 +91,88 @@ public class OrdersServlet extends HttpServlet {
         String option = req.getParameter("option");
         PrintWriter writer = resp.getWriter();
 
-        if (option.equals("OrderId")) {
-            try {
-                ResultSet result = CrudUtil.execute("SELECT orderId FROM `Orders` ORDER BY orderId DESC LIMIT 1");
+        switch (option) {
+            case "OrderIdGenerate":
+                try {
+                    JsonObjectBuilder ordID = Json.createObjectBuilder();
+                    ResultSet result = CrudUtil.execute("SELECT orderId FROM `Orders` ORDER BY orderId DESC LIMIT 1");
+                    while (result.next()) {
+                        ordID.add("orderId", result.getString(1));
+                    }
+                    writer.print(ordID.build());
 
-                JsonObjectBuilder ordID = Json.createObjectBuilder();
-                ordID.add("orderId", result.getString(1));
-                System.out.println(ordID);
-                writer.print(ordID.build());
 
+                } catch (SQLException | ClassNotFoundException e) {
 
-            } catch (SQLException | ClassNotFoundException e) {
-
-                JsonObjectBuilder rjo = Json.createObjectBuilder();
-                rjo.add("state", "Error");
-                rjo.add("message", e.getLocalizedMessage());
-                rjo.add("data", "");
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().print(rjo.build());
-            }
-
-        } else if (option.equals("LoadOrders")) {
-            try {
-                ResultSet result = CrudUtil.execute("SELECT * FROM `Orders`");
-                while (result.next()) {
-                    orderDTOS.add(new OrderDTO(result.getString(1), result.getString(2), result.getString(3)));
-                }
-                for (OrderDTO customerDTO : orderDTOS) {
-                    JsonObjectBuilder order = Json.createObjectBuilder();
-                    order.add("orderId", customerDTO.getId());
-                    order.add("date", customerDTO.getDate());
-                    order.add("cusId", customerDTO.getCustomerId());
-                    allOrders.add(order.build());
+                    JsonObjectBuilder rjo = Json.createObjectBuilder();
+                    rjo.add("state", "Error");
+                    rjo.add("message", e.getLocalizedMessage());
+                    rjo.add("data", "");
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.getWriter().print(rjo.build());
                 }
 
-                JsonObjectBuilder job = Json.createObjectBuilder();
-                job.add("state", "Ok");
-                job.add("message", "Successfully Loaded..!");
-                job.add("data", allOrders.build());
-                resp.getWriter().print(job.build());
+                break;
+            case "LoadOrders":
+                try {
+                    ResultSet result = CrudUtil.execute("SELECT * FROM `Orders`");
+                    while (result.next()) {
+                        orderDTOS.add(new OrderDTO(result.getString(1), result.getString(2), result.getString(3)));
+                    }
+                    for (OrderDTO customerDTO : orderDTOS) {
+                        JsonObjectBuilder order = Json.createObjectBuilder();
+                        order.add("orderId", customerDTO.getId());
+                        order.add("date", customerDTO.getDate());
+                        order.add("cusId", customerDTO.getCustomerId());
+                        allOrders.add(order.build());
+                    }
 
-            } catch (ClassNotFoundException | SQLException e) {
-                JsonObjectBuilder rjo = Json.createObjectBuilder();
-                rjo.add("state", "Error");
-                rjo.add("message", e.getLocalizedMessage());
-                rjo.add("data", "");
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().print(rjo.build());
-            }
-        } else if (option.equals("LoadOrderDetails")) {
-            try {
-                ResultSet result = CrudUtil.execute("SELECT * FROM `OrderDetail`");
-                while (result.next()) {
-                    orderDetailDTO.add(new OrderDetailDTO(result.getString(1), result.getString(2), result.getInt(3), result.getDouble(4)));
+                    JsonObjectBuilder job = Json.createObjectBuilder();
+                    job.add("state", "Ok");
+                    job.add("message", "Successfully Loaded..!");
+                    job.add("data", allOrders.build());
+                    resp.getWriter().print(job.build());
+
+                } catch (ClassNotFoundException | SQLException e) {
+                    JsonObjectBuilder rjo = Json.createObjectBuilder();
+                    rjo.add("state", "Error");
+                    rjo.add("message", e.getLocalizedMessage());
+                    rjo.add("data", "");
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.getWriter().print(rjo.build());
                 }
-                for (OrderDetailDTO customerDTO : orderDetailDTO) {
-                    JsonObjectBuilder orderDetails = Json.createObjectBuilder();
-                    orderDetails.add("OrderId", customerDTO.getOrderId());
-                    orderDetails.add("code", customerDTO.getItemCode());
-                    orderDetails.add("qty", customerDTO.getQty());
-                    orderDetails.add("unitPrice", customerDTO.getTotal());
-                    allOrderDetails.add(orderDetails.build());
+                break;
+            case "LoadOrderDetails":
+                try {
+                    ResultSet result = CrudUtil.execute("SELECT * FROM `OrderDetail`");
+                    while (result.next()) {
+                        orderDetailDTO.add(new OrderDetailDTO(result.getString(1), result.getString(2), result.getInt(3), result.getDouble(4)));
+                    }
+                    for (OrderDetailDTO customerDTO : orderDetailDTO) {
+                        JsonObjectBuilder orderDetails = Json.createObjectBuilder();
+                        orderDetails.add("OrderId", customerDTO.getOrderId());
+                        orderDetails.add("code", customerDTO.getItemCode());
+                        orderDetails.add("qty", customerDTO.getQty());
+                        orderDetails.add("unitPrice", customerDTO.getTotal());
+                        allOrderDetails.add(orderDetails.build());
+                    }
+
+                    JsonObjectBuilder job = Json.createObjectBuilder();
+                    job.add("state", "Ok");
+                    job.add("message", "Successfully Loaded..!");
+                    job.add("data", allOrderDetails.build());
+                    resp.getWriter().print(job.build());
+
+                } catch (ClassNotFoundException | SQLException e) {
+                    JsonObjectBuilder rjo = Json.createObjectBuilder();
+                    rjo.add("state", "Error");
+                    rjo.add("message", e.getLocalizedMessage());
+                    rjo.add("data", "");
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.getWriter().print(rjo.build());
                 }
 
-                JsonObjectBuilder job = Json.createObjectBuilder();
-                job.add("state", "Ok");
-                job.add("message", "Successfully Loaded..!");
-                job.add("data", allOrderDetails.build());
-                resp.getWriter().print(job.build());
-
-            } catch (ClassNotFoundException | SQLException e) {
-                JsonObjectBuilder rjo = Json.createObjectBuilder();
-                rjo.add("state", "Error");
-                rjo.add("message", e.getLocalizedMessage());
-                rjo.add("data", "");
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().print(rjo.build());
-            }
-
+                break;
         }
 
     }

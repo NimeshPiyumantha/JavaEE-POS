@@ -87,7 +87,7 @@
                 <div class="row mt-1">
                     <div class="col-12 col-md-6 col-lg-6">
                         <label class="fw-bold" for="orderId">Order ID :</label>
-                        <input class="form-control border-dark" id="orderId" type="text" value="ODI-0001">
+                        <input class="form-control border-dark" id="orderId" type="text" value="ODI-001">
                     </div>
                     <div class="col-12 col-md-6 col-lg-6">
                         <label class="fw-bold" for="orderDate">Order Date :</label>
@@ -508,7 +508,7 @@
     function generateOrderID() {
         $("#orderId").val("ODI-001");
         $.ajax({
-            url: baseUrl + "orders?option=OrderId",
+            url: baseUrl + "orders?option=OrderIdGenerate",
             method: "GET",
             contentType: "application/json",
             dataType: "json",
