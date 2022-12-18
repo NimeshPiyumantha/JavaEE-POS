@@ -3,6 +3,7 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/javax.json-1.1.4.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/javax.json-api-1.1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/mysql-connector-java-8.0.25.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

@@ -1,0 +1,18 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="Pos_JavaEE">
+    <output-path>$PROJECT_DIR$/out/artifacts/Pos_JavaEE</output-path>
+    <root id="root">
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="BackEnd-POS" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="dbcp" />
+          <element id="library" level="project" name="javax.json-1.1.4" />
+          <element id="file-copy" path="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.22/lombok-1.18.22.jar" />
+        </element>
+      </element>
+      <element id="javaee-facet-resources" facet="BackEnd-POS/web/Web" />
+    </root>
+  </artifact>
+</component>
