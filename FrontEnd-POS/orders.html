@@ -236,11 +236,11 @@
 <script rel="script" src="util/validation.js"></script>
 
 <script>
-    generateOrderID();
+    let baseUrl = "http://localhost:8080/Pos_JavaEE/";
     /** Customers cmb Load */
     $("#cmbCustomerId").empty();
     $.ajax({
-        url: "customer?option=loadAllCustomer",
+        url: baseUrl + "customer?option=loadAllCustomer",
         method: "GET",
         dataType: "json",
         success: function (res) {
@@ -251,6 +251,7 @@
 
                 $("#cmbCustomerId").append(`<option>${id}</option>`);
             }
+            generateOrderID();
             alert(res.message);
         },
         error: function (error) {
@@ -264,7 +265,7 @@
     $("#cmbCustomerId").click(function () {
         var search = $("#cmbCustomerId").val();
         $.ajax({
-            url: "customer?id=" + search + "&option=searchCusId",
+            url: baseUrl + "customer?id=" + search + "&option=searchCusId",
             method: "GET",
             contentType: "application/json",
             dataType: "json",
@@ -284,7 +285,7 @@
 
     $("#cmbItemCode").empty();
     $.ajax({
-        url: "item?option=loadAllItem",
+        url: baseUrl + "item?option=loadAllItem",
         method: "GET",
         dataType: "json",
         success: function (res) {
@@ -305,7 +306,7 @@
     $("#cmbItemCode").click(function () {
         var search = $("#cmbItemCode").val();
         $.ajax({
-            url: "item?code=" + search + "&option=searchItemCode",
+            url: baseUrl + "item?code=" + search + "&option=searchItemCode",
             method: "GET",
             contentType: "application/json",
             dataType: "json",
@@ -504,32 +505,10 @@
         }
     });
 
-    /**
-     * Logics
-     * Place order
-     * placeOrder to Order Array
-     * method
-     * */
-    /* function placeOrder() {
-         //create object
-         let orderArrayList = new orderDTO(
-             $("#orderId").val(),
-             $("#cmbCustomerId").val(),
-             $("#orderDate").val(),
-             $("#txtSubTotal").val(),
-             $("#txtDiscount").val()
-         );
-
-         orders.push(orderArrayList);
-         console.log(orderArrayList);
-
-         saveUpdateAlert("Place Ordering", "Successfully.");
-     }*/
-
     function generateOrderID() {
         $("#orderId").val("ODI-001");
         $.ajax({
-            url: "orders?option=OrderId",
+            url: baseUrl + "orders?option=OrderId",
             method: "GET",
             contentType: "application/json",
             dataType: "json",
@@ -584,7 +563,7 @@
         console.log(orderDetails)
 
         $.ajax({
-            url: "orders",
+            url: baseUrl + "orders",
             method: "POST",
             contentType: "application/json",
             dataType: "json",
