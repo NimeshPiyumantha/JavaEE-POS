@@ -168,11 +168,12 @@
 <script rel="script" src="assets/styles/jQuery/jquery-3.6.1.min.js"></script>
 
 <script>
+    let baseUrl="http://localhost:8080/Pos_JavaEE/";
     loadAllItems();
     $("#btnAddItem").click(function () {
         let formData = $("#itemForm").serialize();
         $.ajax({
-            url: "item",
+            url:baseUrl+ "item",
             method: "post",
             data: formData,
             dataType: "json",
@@ -201,7 +202,7 @@
         }
 
         $.ajax({
-            url: "item",
+            url: baseUrl+"item",
             method: "put",
             contentType: "application/json",
             data: JSON.stringify(itemOb),
@@ -230,7 +231,7 @@
             unitPrice: itUnitPrice
         }
         $.ajax({
-            url: "item",
+            url:baseUrl+ "item",
             method: "delete",
             contentType: "application/json",
             data: JSON.stringify(itemOb),
@@ -250,7 +251,7 @@
             var search = $("#ItemIdSearch").val();
             $("#ItemTable").empty();
             $.ajax({
-                url: "item?code=" + search + "&option=searchItemCode",
+                url:baseUrl+ "item?code=" + search + "&option=searchItemCode",
                 method: "GET",
                 contentType: "application/json",
                 dataType: "json",
@@ -272,7 +273,7 @@
     function loadAllItems() {
         $("#ItemTable").empty();
         $.ajax({
-            url: "item?option=loadAllItem",
+            url:baseUrl+ "item?option=loadAllItem",
             method: "GET",
             dataType: "json",
             success: function (res) {
