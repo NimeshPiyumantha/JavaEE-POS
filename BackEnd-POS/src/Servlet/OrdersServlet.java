@@ -73,13 +73,6 @@ public class OrdersServlet extends HttpServlet {
     }
 
     @Override
-    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.addHeader("Access-Control-Allow-Origin", "*");
-        resp.addHeader("Access-Control-Allow-Methods", "PUT,DELETE");
-        resp.addHeader("Access-Control-Allow-Headers", "content-type");
-    }
-
-    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ArrayList<OrderDTO> orderDTOS = new ArrayList<>();
         ArrayList<OrderDetailDTO> orderDetailDTO = new ArrayList<>();
