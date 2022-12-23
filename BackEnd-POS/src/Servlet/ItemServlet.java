@@ -28,8 +28,6 @@ public class ItemServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ArrayList<ItemDTO> obList = new ArrayList<>();
         JsonArrayBuilder allItems = Json.createArrayBuilder();
-        resp.addHeader("Content-Type", "application/json");
-        resp.addHeader("Access-Control-Allow-Origin", "*");
 
         String code = req.getParameter("code");
         String option = req.getParameter("option");
@@ -100,9 +98,6 @@ public class ItemServlet extends HttpServlet {
         int qty = Integer.parseInt(req.getParameter("qty"));
         double unitPrice = Double.parseDouble(req.getParameter("unitPrice"));
 
-        resp.addHeader("Access-Control-Allow-Origin", "*");
-
-
         try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {            //Save Item
             ItemDTO i = new ItemDTO(code, description, qty, unitPrice);
             boolean b = CrudUtil.execute(connection, "INSERT INTO Item VALUES (?,?,?,?)", i.getCode(), i.getDescription(), i.getQty(), i.getUnitPrice());
@@ -145,8 +140,7 @@ public class ItemServlet extends HttpServlet {
         String description = item.getString("description");
         int qty = Integer.parseInt(item.getString("qty"));
         double unitPrice = Double.parseDouble(item.getString("unitPrice"));
-        resp.setContentType("application/json");
-        resp.addHeader("Access-Control-Allow-Origin", "*");
+
         //Update Item
         ItemDTO iU = new ItemDTO(code, description, qty, unitPrice);
         try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
@@ -190,8 +184,7 @@ public class ItemServlet extends HttpServlet {
         JsonObject item = reader.readObject();
 
         String code = item.getString("code");
-        resp.setContentType("application/json");
-        resp.addHeader("Access-Control-Allow-Origin", "*");
+
         //Delete Item
         try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
             boolean b = CrudUtil.execute(connection, "DELETE FROM Item WHERE code=?", code);

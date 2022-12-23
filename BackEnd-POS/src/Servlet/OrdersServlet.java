@@ -30,9 +30,6 @@ public class OrdersServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        resp.setContentType("application/json");
-        resp.addHeader("Access-Control-Allow-Origin", "*");
-
         JsonReader reader = Json.createReader(req.getReader());
         JsonObject jsonObject = reader.readObject();
         JsonArray oDetail = jsonObject.getJsonArray("detail");
@@ -80,8 +77,6 @@ public class OrdersServlet extends HttpServlet {
         ArrayList<OrderDetailDTO> orderDetailDTO = new ArrayList<>();
         JsonArrayBuilder allOrders = Json.createArrayBuilder();
         JsonArrayBuilder allOrderDetails = Json.createArrayBuilder();
-        resp.addHeader("Content-Type", "application/json");
-        resp.addHeader("Access-Control-Allow-Origin", "*");
 
         String option = req.getParameter("option");
         PrintWriter writer = resp.getWriter();

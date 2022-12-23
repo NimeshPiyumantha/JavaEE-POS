@@ -27,8 +27,6 @@ public class CustomerServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ArrayList<CustomerDTO> obList = new ArrayList<>();
         JsonArrayBuilder allCustomers = Json.createArrayBuilder();
-        resp.addHeader("Content-Type", "application/json");
-        resp.addHeader("Access-Control-Allow-Origin", "*");
 
         String id = req.getParameter("id");
         String option = req.getParameter("option");
@@ -99,8 +97,6 @@ public class CustomerServlet extends HttpServlet {
         String address = req.getParameter("address");
         double salary = Double.parseDouble(req.getParameter("salary"));
 
-        resp.addHeader("Access-Control-Allow-Origin", "*");
-
         try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {            //Save Customer
             CustomerDTO c = new CustomerDTO(id, name, address, salary);
             boolean b = CrudUtil.execute(connection, "INSERT INTO Customer VALUES (?,?,?,?)", c.getId(), c.getName(), c.getAddress(), c.getSalary());
@@ -144,8 +140,6 @@ public class CustomerServlet extends HttpServlet {
         String name = customer.getString("name");
         String address = customer.getString("address");
         double salary = Double.parseDouble(customer.getString("salary"));
-        resp.setContentType("application/json");
-        resp.addHeader("Access-Control-Allow-Origin", "*");
 
         //Update Customer
         CustomerDTO cU = new CustomerDTO(id, name, address, salary);
@@ -191,8 +185,7 @@ public class CustomerServlet extends HttpServlet {
         JsonObject customer = reader.readObject();
 
         String id = customer.getString("id");
-        resp.setContentType("application/json");
-        resp.addHeader("Access-Control-Allow-Origin", "*");
+
         //Delete Customer
         try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
             boolean b = CrudUtil.execute(connection, "DELETE FROM Customer WHERE id=?", id);
