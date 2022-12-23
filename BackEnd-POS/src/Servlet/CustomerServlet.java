@@ -35,7 +35,7 @@ public class CustomerServlet extends HttpServlet {
 
         PrintWriter writer = resp.getWriter();
         if (option.equals("searchCusId")) {
-            try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) { ////listener එකෙන් passed කරන value එකට අදාල key එක getServletContext().getAttribute() method එකට pass කරනවා. ඒ value එක cast කරනවා BasicDataSource type එකට.
+            try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) { //listener එකෙන් passed කරන value එකට අදාල key එක getServletContext().getAttribute() method එකට pass කරනවා. ඒ value එක cast කරනවා BasicDataSource type එකට.
                 ResultSet result = CrudUtil.execute(connection, "SELECT * FROM Customer WHERE id=?", id);
                 if (result.next()) {
                     JsonObjectBuilder customer = Json.createObjectBuilder();
