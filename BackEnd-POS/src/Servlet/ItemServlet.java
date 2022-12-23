@@ -1,15 +1,17 @@
 package Servlet;
 
 import model.ItemDTO;
-import org.apache.commons.dbcp2.BasicDataSource;
+
 import util.CrudUtil;
 
+import javax.annotation.Resource;
 import javax.json.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -24,6 +26,9 @@ import java.util.ArrayList;
 
 @WebServlet(urlPatterns = "/item")
 public class ItemServlet extends HttpServlet {
+    @Resource(name = "java:comp/env/jdbc/pool")
+    DataSource dataSource;
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ArrayList<ItemDTO> obList = new ArrayList<>();
@@ -34,7 +39,7 @@ public class ItemServlet extends HttpServlet {
 
         PrintWriter writer = resp.getWriter();
         if (option.equals("searchItemCode")) {
-            try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+            try (Connection connection = dataSource.getConnection()) {
                 ResultSet result = CrudUtil.execute(connection, "SELECT * FROM Item WHERE code=?", code);
                 if (result.next()) {
                     JsonObjectBuilder item = Json.createObjectBuilder();
@@ -59,7 +64,7 @@ public class ItemServlet extends HttpServlet {
             }
 
         } else if (option.equals("loadAllItem")) {
-            try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+            try (Connection connection = dataSource.getConnection()) {
                 ResultSet result = CrudUtil.execute(connection, "SELECT * FROM Item");
                 while (result.next()) {
                     obList.add(new ItemDTO(result.getString(1), result.getString(2), result.getInt(3), result.getDouble(4)));
@@ -98,7 +103,7 @@ public class ItemServlet extends HttpServlet {
         int qty = Integer.parseInt(req.getParameter("qty"));
         double unitPrice = Double.parseDouble(req.getParameter("unitPrice"));
 
-        try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {            //Save Item
+        try (Connection connection = dataSource.getConnection()) {
             ItemDTO i = new ItemDTO(code, description, qty, unitPrice);
             boolean b = CrudUtil.execute(connection, "INSERT INTO Item VALUES (?,?,?,?)", i.getCode(), i.getDescription(), i.getQty(), i.getUnitPrice());
             if (b) {
@@ -143,7 +148,7 @@ public class ItemServlet extends HttpServlet {
 
         //Update Item
         ItemDTO iU = new ItemDTO(code, description, qty, unitPrice);
-        try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             boolean b = CrudUtil.execute(connection, "UPDATE Item SET description= ? , qty=? , unitPrice=? WHERE code=?", iU.getDescription(), iU.getQty(), iU.getUnitPrice(), iU.getCode());
             if (b) {
 
@@ -186,7 +191,7 @@ public class ItemServlet extends HttpServlet {
         String code = item.getString("code");
 
         //Delete Item
-        try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             boolean b = CrudUtil.execute(connection, "DELETE FROM Item WHERE code=?", code);
             if (b) {
 

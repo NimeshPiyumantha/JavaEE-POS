@@ -1,17 +1,17 @@
 package Servlet;
 
-import model.CustomerDTO;
 import model.OrderDTO;
 import model.OrderDetailDTO;
-import org.apache.commons.dbcp2.BasicDataSource;
 import util.CrudUtil;
 
+import javax.annotation.Resource;
 import javax.json.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -26,6 +26,9 @@ import java.util.ArrayList;
 
 @WebServlet(urlPatterns = "/orders")
 public class OrdersServlet extends HttpServlet {
+    @Resource(name = "java:comp/env/jdbc/pool")
+    DataSource dataSource;
+
     @Override
 
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -41,7 +44,7 @@ public class OrdersServlet extends HttpServlet {
         String orderId = jsonObject.getString("orderId");
         System.out.println(customerId + " " + date + " " + orderId);
 
-        try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             OrderDTO orderDTO = new OrderDTO(orderId, date, customerId);
             CrudUtil.execute(connection, "INSERT INTO orders VALUES(?,?,?)", orderDTO.getId(), orderDTO.getDate(), orderDTO.getCustomerId());
 
@@ -83,7 +86,7 @@ public class OrdersServlet extends HttpServlet {
 
         switch (option) {
             case "OrderIdGenerate":
-                try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+                try (Connection connection = dataSource.getConnection()) {
                     JsonObjectBuilder ordID = Json.createObjectBuilder();
                     ResultSet result = CrudUtil.execute(connection, "SELECT orderId FROM `Orders` ORDER BY orderId DESC LIMIT 1");
                     while (result.next()) {
@@ -104,7 +107,7 @@ public class OrdersServlet extends HttpServlet {
 
                 break;
             case "LoadOrders":
-                try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+                try (Connection connection = dataSource.getConnection()) {
                     ResultSet result = CrudUtil.execute(connection, "SELECT * FROM `Orders`");
                     while (result.next()) {
                         orderDTOS.add(new OrderDTO(result.getString(1), result.getString(2), result.getString(3)));
@@ -133,7 +136,7 @@ public class OrdersServlet extends HttpServlet {
                 }
                 break;
             case "LoadOrderDetails":
-                try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+                try (Connection connection = dataSource.getConnection()) {
                     ResultSet result = CrudUtil.execute(connection, "SELECT * FROM `OrderDetail`");
                     while (result.next()) {
                         orderDetailDTO.add(new OrderDetailDTO(result.getString(1), result.getString(2), result.getInt(3), result.getDouble(4)));

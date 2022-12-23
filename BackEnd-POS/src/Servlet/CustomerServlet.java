@@ -1,15 +1,16 @@
 package Servlet;
 
 import model.CustomerDTO;
-import org.apache.commons.dbcp2.BasicDataSource;
 import util.CrudUtil;
 
+import javax.annotation.Resource;
 import javax.json.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -23,6 +24,9 @@ import java.util.ArrayList;
  **/
 @WebServlet(urlPatterns = "/customer")
 public class CustomerServlet extends HttpServlet {
+    @Resource(name = "java:comp/env/jdbc/pool")
+    DataSource dataSource;
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ArrayList<CustomerDTO> obList = new ArrayList<>();
@@ -33,7 +37,7 @@ public class CustomerServlet extends HttpServlet {
 
         PrintWriter writer = resp.getWriter();
         if (option.equals("searchCusId")) {
-            try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) { //listener එකෙන් passed කරන value එකට අදාල key එක getServletContext().getAttribute() method එකට pass කරනවා. ඒ value එක cast කරනවා BasicDataSource type එකට.
+            try (Connection connection = dataSource.getConnection()) {
                 ResultSet result = CrudUtil.execute(connection, "SELECT * FROM Customer WHERE id=?", id);
                 if (result.next()) {
                     JsonObjectBuilder customer = Json.createObjectBuilder();
@@ -58,7 +62,7 @@ public class CustomerServlet extends HttpServlet {
             }
 
         } else if (option.equals("loadAllCustomer")) {
-            try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+            try (Connection connection = dataSource.getConnection()) {
                 ResultSet result = CrudUtil.execute(connection, "SELECT * FROM Customer");
                 while (result.next()) {
                     obList.add(new CustomerDTO(result.getString(1), result.getString(2), result.getString(3), result.getDouble(4)));
@@ -97,7 +101,7 @@ public class CustomerServlet extends HttpServlet {
         String address = req.getParameter("address");
         double salary = Double.parseDouble(req.getParameter("salary"));
 
-        try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {            //Save Customer
+        try (Connection connection = dataSource.getConnection()) {
             CustomerDTO c = new CustomerDTO(id, name, address, salary);
             boolean b = CrudUtil.execute(connection, "INSERT INTO Customer VALUES (?,?,?,?)", c.getId(), c.getName(), c.getAddress(), c.getSalary());
             if (b) {
@@ -143,7 +147,7 @@ public class CustomerServlet extends HttpServlet {
 
         //Update Customer
         CustomerDTO cU = new CustomerDTO(id, name, address, salary);
-        try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             boolean b = CrudUtil.execute(connection, "UPDATE Customer SET name= ? , address=? , salary=? WHERE id=?", cU.getName(), cU.getAddress(), cU.getSalary(), cU.getId());
             if (b) {
 
@@ -187,7 +191,7 @@ public class CustomerServlet extends HttpServlet {
         String id = customer.getString("id");
 
         //Delete Customer
-        try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             boolean b = CrudUtil.execute(connection, "DELETE FROM Customer WHERE id=?", id);
             if (b) {
 
