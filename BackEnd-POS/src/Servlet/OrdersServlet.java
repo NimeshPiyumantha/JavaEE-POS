@@ -3,6 +3,7 @@ package Servlet;
 import model.CustomerDTO;
 import model.OrderDTO;
 import model.OrderDetailDTO;
+import org.apache.commons.dbcp2.BasicDataSource;
 import util.CrudUtil;
 
 import javax.json.*;
@@ -43,9 +44,9 @@ public class OrdersServlet extends HttpServlet {
         String orderId = jsonObject.getString("orderId");
         System.out.println(customerId + " " + date + " " + orderId);
 
-        try (Connection connection = db.DBConnection.getDbConnection().getConnection();) {
+        try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
             OrderDTO orderDTO = new OrderDTO(orderId, date, customerId);
-            CrudUtil.execute(connection,"INSERT INTO orders VALUES(?,?,?)", orderDTO.getId(), orderDTO.getDate(), orderDTO.getCustomerId());
+            CrudUtil.execute(connection, "INSERT INTO orders VALUES(?,?,?)", orderDTO.getId(), orderDTO.getDate(), orderDTO.getCustomerId());
 
             for (JsonValue orderDetail : oDetail) {
                 JsonObject object = orderDetail.asJsonObject();
@@ -55,7 +56,7 @@ public class OrdersServlet extends HttpServlet {
                 int qty = Integer.parseInt(object.getString("qty"));
                 double price = Double.parseDouble(object.getString("unitPrice"));
                 OrderDetailDTO orderDetailDTO = new OrderDetailDTO(orId, itId, qty, price);
-                CrudUtil.execute(connection,"INSERT INTO OrderDetail VALUES(?,?,?,?)", orderDetailDTO.getOrderId(), orderDetailDTO.getItemCode(), orderDetailDTO.getQty(), orderDetailDTO.getTotal());
+                CrudUtil.execute(connection, "INSERT INTO OrderDetail VALUES(?,?,?,?)", orderDetailDTO.getOrderId(), orderDetailDTO.getItemCode(), orderDetailDTO.getQty(), orderDetailDTO.getTotal());
             }
             JsonObjectBuilder job = Json.createObjectBuilder();
             job.add("state", "Ok");
@@ -87,9 +88,9 @@ public class OrdersServlet extends HttpServlet {
 
         switch (option) {
             case "OrderIdGenerate":
-                try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
+                try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
                     JsonObjectBuilder ordID = Json.createObjectBuilder();
-                    ResultSet result = CrudUtil.execute(connection,"SELECT orderId FROM `Orders` ORDER BY orderId DESC LIMIT 1");
+                    ResultSet result = CrudUtil.execute(connection, "SELECT orderId FROM `Orders` ORDER BY orderId DESC LIMIT 1");
                     while (result.next()) {
                         ordID.add("orderId", result.getString(1));
                     }
@@ -108,8 +109,8 @@ public class OrdersServlet extends HttpServlet {
 
                 break;
             case "LoadOrders":
-                try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
-                    ResultSet result = CrudUtil.execute(connection,"SELECT * FROM `Orders`");
+                try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+                    ResultSet result = CrudUtil.execute(connection, "SELECT * FROM `Orders`");
                     while (result.next()) {
                         orderDTOS.add(new OrderDTO(result.getString(1), result.getString(2), result.getString(3)));
                     }
@@ -137,8 +138,8 @@ public class OrdersServlet extends HttpServlet {
                 }
                 break;
             case "LoadOrderDetails":
-                try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
-                    ResultSet result = CrudUtil.execute(connection,"SELECT * FROM `OrderDetail`");
+                try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+                    ResultSet result = CrudUtil.execute(connection, "SELECT * FROM `OrderDetail`");
                     while (result.next()) {
                         orderDetailDTO.add(new OrderDetailDTO(result.getString(1), result.getString(2), result.getInt(3), result.getDouble(4)));
                     }

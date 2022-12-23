@@ -1,6 +1,7 @@
 package Servlet;
 
 import model.ItemDTO;
+import org.apache.commons.dbcp2.BasicDataSource;
 import util.CrudUtil;
 
 import javax.json.*;
@@ -35,8 +36,8 @@ public class ItemServlet extends HttpServlet {
 
         PrintWriter writer = resp.getWriter();
         if (option.equals("searchItemCode")) {
-            try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
-                ResultSet result = CrudUtil.execute(connection,"SELECT * FROM Item WHERE code=?", code);
+            try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+                ResultSet result = CrudUtil.execute(connection, "SELECT * FROM Item WHERE code=?", code);
                 if (result.next()) {
                     JsonObjectBuilder item = Json.createObjectBuilder();
                     item.add("code", result.getString(1));
@@ -60,8 +61,8 @@ public class ItemServlet extends HttpServlet {
             }
 
         } else if (option.equals("loadAllItem")) {
-            try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
-                ResultSet result = CrudUtil.execute(connection,"SELECT * FROM Item");
+            try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+                ResultSet result = CrudUtil.execute(connection, "SELECT * FROM Item");
                 while (result.next()) {
                     obList.add(new ItemDTO(result.getString(1), result.getString(2), result.getInt(3), result.getDouble(4)));
                 }
@@ -102,10 +103,9 @@ public class ItemServlet extends HttpServlet {
         resp.addHeader("Access-Control-Allow-Origin", "*");
 
 
-        try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
-            //Save Item
+        try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {            //Save Item
             ItemDTO i = new ItemDTO(code, description, qty, unitPrice);
-            boolean b = CrudUtil.execute(connection,"INSERT INTO Item VALUES (?,?,?,?)", i.getCode(), i.getDescription(), i.getQty(), i.getUnitPrice());
+            boolean b = CrudUtil.execute(connection, "INSERT INTO Item VALUES (?,?,?,?)", i.getCode(), i.getDescription(), i.getQty(), i.getUnitPrice());
             if (b) {
 
                 JsonObjectBuilder responseObject = Json.createObjectBuilder();
@@ -149,8 +149,8 @@ public class ItemServlet extends HttpServlet {
         resp.addHeader("Access-Control-Allow-Origin", "*");
         //Update Item
         ItemDTO iU = new ItemDTO(code, description, qty, unitPrice);
-        try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
-            boolean b = CrudUtil.execute(connection,"UPDATE Item SET description= ? , qty=? , unitPrice=? WHERE code=?", iU.getDescription(), iU.getQty(), iU.getUnitPrice(), iU.getCode());
+        try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+            boolean b = CrudUtil.execute(connection, "UPDATE Item SET description= ? , qty=? , unitPrice=? WHERE code=?", iU.getDescription(), iU.getQty(), iU.getUnitPrice(), iU.getCode());
             if (b) {
 
                 JsonObjectBuilder responseObject = Json.createObjectBuilder();
@@ -193,8 +193,8 @@ public class ItemServlet extends HttpServlet {
         resp.setContentType("application/json");
         resp.addHeader("Access-Control-Allow-Origin", "*");
         //Delete Item
-        try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
-            boolean b = CrudUtil.execute(connection,"DELETE FROM Item WHERE code=?", code);
+        try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+            boolean b = CrudUtil.execute(connection, "DELETE FROM Item WHERE code=?", code);
             if (b) {
 
                 JsonObjectBuilder rjo = Json.createObjectBuilder();

@@ -1,6 +1,7 @@
 package Servlet;
 
 import model.CustomerDTO;
+import org.apache.commons.dbcp2.BasicDataSource;
 import util.CrudUtil;
 
 import javax.json.*;
@@ -34,8 +35,8 @@ public class CustomerServlet extends HttpServlet {
 
         PrintWriter writer = resp.getWriter();
         if (option.equals("searchCusId")) {
-            try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
-                ResultSet result = CrudUtil.execute(connection,"SELECT * FROM Customer WHERE id=?", id);
+            try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+                ResultSet result = CrudUtil.execute(connection, "SELECT * FROM Customer WHERE id=?", id);
                 if (result.next()) {
                     JsonObjectBuilder customer = Json.createObjectBuilder();
                     customer.add("id", result.getString(1));
@@ -59,8 +60,8 @@ public class CustomerServlet extends HttpServlet {
             }
 
         } else if (option.equals("loadAllCustomer")) {
-            try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
-                ResultSet result = CrudUtil.execute(connection,"SELECT * FROM Customer");
+            try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+                ResultSet result = CrudUtil.execute(connection, "SELECT * FROM Customer");
                 while (result.next()) {
                     obList.add(new CustomerDTO(result.getString(1), result.getString(2), result.getString(3), result.getDouble(4)));
                 }
@@ -100,10 +101,9 @@ public class CustomerServlet extends HttpServlet {
 
         resp.addHeader("Access-Control-Allow-Origin", "*");
 
-        try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
-            //Save Customer
+        try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {            //Save Customer
             CustomerDTO c = new CustomerDTO(id, name, address, salary);
-            boolean b = CrudUtil.execute(connection,"INSERT INTO Customer VALUES (?,?,?,?)", c.getId(), c.getName(), c.getAddress(), c.getSalary());
+            boolean b = CrudUtil.execute(connection, "INSERT INTO Customer VALUES (?,?,?,?)", c.getId(), c.getName(), c.getAddress(), c.getSalary());
             if (b) {
 
                 JsonObjectBuilder responseObject = Json.createObjectBuilder();
@@ -149,8 +149,8 @@ public class CustomerServlet extends HttpServlet {
 
         //Update Customer
         CustomerDTO cU = new CustomerDTO(id, name, address, salary);
-        try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
-            boolean b = CrudUtil.execute(connection,"UPDATE Customer SET name= ? , address=? , salary=? WHERE id=?", cU.getName(), cU.getAddress(), cU.getSalary(), cU.getId());
+        try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+            boolean b = CrudUtil.execute(connection, "UPDATE Customer SET name= ? , address=? , salary=? WHERE id=?", cU.getName(), cU.getAddress(), cU.getSalary(), cU.getId());
             if (b) {
 
                 JsonObjectBuilder responseObject = Json.createObjectBuilder();
@@ -194,8 +194,8 @@ public class CustomerServlet extends HttpServlet {
         resp.setContentType("application/json");
         resp.addHeader("Access-Control-Allow-Origin", "*");
         //Delete Customer
-        try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
-            boolean b = CrudUtil.execute(connection,"DELETE FROM Customer WHERE id=?", id);
+        try (Connection connection = ((BasicDataSource) getServletContext().getAttribute("poll")).getConnection()) {
+            boolean b = CrudUtil.execute(connection, "DELETE FROM Customer WHERE id=?", id);
             if (b) {
 
                 JsonObjectBuilder rjo = Json.createObjectBuilder();
