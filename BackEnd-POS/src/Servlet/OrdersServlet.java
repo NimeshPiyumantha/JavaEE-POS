@@ -45,9 +45,15 @@ public class OrdersServlet extends HttpServlet {
         System.out.println(customerId + " " + date + " " + orderId);
 
         try (Connection connection = dataSource.getConnection()) {
-            OrderDTO orderDTO = new OrderDTO(orderId, date, customerId);
-            CrudUtil.execute(connection, "INSERT INTO orders VALUES(?,?,?)", orderDTO.getId(), orderDTO.getDate(), orderDTO.getCustomerId());
+            connection.setAutoCommit(false);
 
+            OrderDTO orderDTO = new OrderDTO(orderId, date, customerId);
+           boolean b =  CrudUtil.execute(connection, "INSERT INTO orders VALUES(?,?,?)", orderDTO.getId(), orderDTO.getDate(), orderDTO.getCustomerId());
+            if (!(b)) {
+                connection.rollback();
+                connection.setAutoCommit(true);
+                throw new RuntimeException("Order Issue");
+            }else{
             for (JsonValue orderDetail : oDetail) {
                 JsonObject object = orderDetail.asJsonObject();
 
@@ -55,14 +61,25 @@ public class OrdersServlet extends HttpServlet {
                 String itId = object.getString("itemId");
                 int qty = Integer.parseInt(object.getString("qty"));
                 double price = Double.parseDouble(object.getString("unitPrice"));
+
                 OrderDetailDTO orderDetailDTO = new OrderDetailDTO(orId, itId, qty, price);
-                CrudUtil.execute(connection, "INSERT INTO OrderDetail VALUES(?,?,?,?)", orderDetailDTO.getOrderId(), orderDetailDTO.getItemCode(), orderDetailDTO.getQty(), orderDetailDTO.getTotal());
+                boolean b1 = CrudUtil.execute(connection, "INSERT INTO OrderDetail VALUES(?,?,?,?)", orderDetailDTO.getOrderId(), orderDetailDTO.getItemCode(), orderDetailDTO.getQty(), orderDetailDTO.getTotal());
+                if (!(b1)) {
+                    connection.rollback();
+                    connection.setAutoCommit(true);
+                    throw new RuntimeException("Order Details Issue");
+                }
             }
-            JsonObjectBuilder job = Json.createObjectBuilder();
-            job.add("state", "Ok");
-            job.add("message", "Successfully Place Order..!");
-            job.add("data", "");
-            resp.getWriter().print(job.build());
+                connection.commit();
+                connection.setAutoCommit(true);
+
+                JsonObjectBuilder job = Json.createObjectBuilder();
+                job.add("state", "Ok");
+                job.add("message", "Successfully Place Order..!");
+                job.add("data", "");
+                resp.getWriter().print(job.build());
+            }
+
         } catch (SQLException | ClassNotFoundException e) {
             JsonObjectBuilder rjo = Json.createObjectBuilder();
             rjo.add("state", "Error");
