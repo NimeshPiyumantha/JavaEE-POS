@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -34,8 +35,8 @@ public class ItemServlet extends HttpServlet {
 
         PrintWriter writer = resp.getWriter();
         if (option.equals("searchItemCode")) {
-            try {
-                ResultSet result = CrudUtil.execute("SELECT * FROM Item WHERE code=?", code);
+            try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
+                ResultSet result = CrudUtil.execute(connection,"SELECT * FROM Item WHERE code=?", code);
                 if (result.next()) {
                     JsonObjectBuilder item = Json.createObjectBuilder();
                     item.add("code", result.getString(1));
@@ -59,8 +60,8 @@ public class ItemServlet extends HttpServlet {
             }
 
         } else if (option.equals("loadAllItem")) {
-            try {
-                ResultSet result = CrudUtil.execute("SELECT * FROM Item");
+            try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
+                ResultSet result = CrudUtil.execute(connection,"SELECT * FROM Item");
                 while (result.next()) {
                     obList.add(new ItemDTO(result.getString(1), result.getString(2), result.getInt(3), result.getDouble(4)));
                 }
@@ -101,10 +102,10 @@ public class ItemServlet extends HttpServlet {
         resp.addHeader("Access-Control-Allow-Origin", "*");
 
 
-        try {
+        try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
             //Save Item
             ItemDTO i = new ItemDTO(code, description, qty, unitPrice);
-            boolean b = CrudUtil.execute("INSERT INTO Item VALUES (?,?,?,?)", i.getCode(), i.getDescription(), i.getQty(), i.getUnitPrice());
+            boolean b = CrudUtil.execute(connection,"INSERT INTO Item VALUES (?,?,?,?)", i.getCode(), i.getDescription(), i.getQty(), i.getUnitPrice());
             if (b) {
 
                 JsonObjectBuilder responseObject = Json.createObjectBuilder();
@@ -148,8 +149,8 @@ public class ItemServlet extends HttpServlet {
         resp.addHeader("Access-Control-Allow-Origin", "*");
         //Update Item
         ItemDTO iU = new ItemDTO(code, description, qty, unitPrice);
-        try {
-            boolean b = CrudUtil.execute("UPDATE Item SET description= ? , qty=? , unitPrice=? WHERE code=?", iU.getDescription(), iU.getQty(), iU.getUnitPrice(), iU.getCode());
+        try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
+            boolean b = CrudUtil.execute(connection,"UPDATE Item SET description= ? , qty=? , unitPrice=? WHERE code=?", iU.getDescription(), iU.getQty(), iU.getUnitPrice(), iU.getCode());
             if (b) {
 
                 JsonObjectBuilder responseObject = Json.createObjectBuilder();
@@ -192,8 +193,8 @@ public class ItemServlet extends HttpServlet {
         resp.setContentType("application/json");
         resp.addHeader("Access-Control-Allow-Origin", "*");
         //Delete Item
-        try {
-            boolean b = CrudUtil.execute("DELETE FROM Item WHERE code=?", code);
+        try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
+            boolean b = CrudUtil.execute(connection,"DELETE FROM Item WHERE code=?", code);
             if (b) {
 
                 JsonObjectBuilder rjo = Json.createObjectBuilder();

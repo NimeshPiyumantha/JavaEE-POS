@@ -10,7 +10,7 @@ public class DBConnection {
     private static DBConnection dbConnection;
     BasicDataSource bds;
 
-    private DBConnection() {
+    private DBConnection() throws SQLException {
         bds = new BasicDataSource();
         bds.setDriverClassName("com.mysql.jdbc.Driver");
         bds.setUrl("jdbc:mysql://localhost:3306/ThogaKadeM");
@@ -19,11 +19,12 @@ public class DBConnection {
 
         bds.setMaxTotal(2);// how many connection
 
-        bds.setInitialSize(2); // how many connection should be initialized from created connections
+        bds.setInitialSize(2);// how many connection should be initialized from created connections
+
 
     }
 
-    public static DBConnection getDbConnection() {
+    public static DBConnection getDbConnection() throws SQLException {
         if (dbConnection == null) {
             dbConnection = new DBConnection();
         }

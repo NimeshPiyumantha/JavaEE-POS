@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,8 +34,8 @@ public class CustomerServlet extends HttpServlet {
 
         PrintWriter writer = resp.getWriter();
         if (option.equals("searchCusId")) {
-            try {
-                ResultSet result = CrudUtil.execute("SELECT * FROM Customer WHERE id=?", id);
+            try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
+                ResultSet result = CrudUtil.execute(connection,"SELECT * FROM Customer WHERE id=?", id);
                 if (result.next()) {
                     JsonObjectBuilder customer = Json.createObjectBuilder();
                     customer.add("id", result.getString(1));
@@ -58,8 +59,8 @@ public class CustomerServlet extends HttpServlet {
             }
 
         } else if (option.equals("loadAllCustomer")) {
-            try {
-                ResultSet result = CrudUtil.execute("SELECT * FROM Customer");
+            try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
+                ResultSet result = CrudUtil.execute(connection,"SELECT * FROM Customer");
                 while (result.next()) {
                     obList.add(new CustomerDTO(result.getString(1), result.getString(2), result.getString(3), result.getDouble(4)));
                 }
@@ -99,10 +100,10 @@ public class CustomerServlet extends HttpServlet {
 
         resp.addHeader("Access-Control-Allow-Origin", "*");
 
-        try {
+        try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
             //Save Customer
             CustomerDTO c = new CustomerDTO(id, name, address, salary);
-            boolean b = CrudUtil.execute("INSERT INTO Customer VALUES (?,?,?,?)", c.getId(), c.getName(), c.getAddress(), c.getSalary());
+            boolean b = CrudUtil.execute(connection,"INSERT INTO Customer VALUES (?,?,?,?)", c.getId(), c.getName(), c.getAddress(), c.getSalary());
             if (b) {
 
                 JsonObjectBuilder responseObject = Json.createObjectBuilder();
@@ -148,8 +149,8 @@ public class CustomerServlet extends HttpServlet {
 
         //Update Customer
         CustomerDTO cU = new CustomerDTO(id, name, address, salary);
-        try {
-            boolean b = CrudUtil.execute("UPDATE Customer SET name= ? , address=? , salary=? WHERE id=?", cU.getName(), cU.getAddress(), cU.getSalary(), cU.getId());
+        try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
+            boolean b = CrudUtil.execute(connection,"UPDATE Customer SET name= ? , address=? , salary=? WHERE id=?", cU.getName(), cU.getAddress(), cU.getSalary(), cU.getId());
             if (b) {
 
                 JsonObjectBuilder responseObject = Json.createObjectBuilder();
@@ -193,8 +194,8 @@ public class CustomerServlet extends HttpServlet {
         resp.setContentType("application/json");
         resp.addHeader("Access-Control-Allow-Origin", "*");
         //Delete Customer
-        try {
-            boolean b = CrudUtil.execute("DELETE FROM Customer WHERE id=?", id);
+        try (Connection connection = db.DBConnection.getDbConnection().getConnection();){
+            boolean b = CrudUtil.execute(connection,"DELETE FROM Customer WHERE id=?", id);
             if (b) {
 
                 JsonObjectBuilder rjo = Json.createObjectBuilder();
