@@ -82,4 +82,4 @@ SELECT *
 FROM Item;
 
 use ThogakadeM;
-SELECT orderId FROM `Orders` ORDER BY orderId DESC LIMIT 1
+SELECT COUNT(id) FROM Customer

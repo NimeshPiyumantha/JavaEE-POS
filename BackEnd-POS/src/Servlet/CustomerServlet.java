@@ -113,6 +113,25 @@ public class CustomerServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 resp.getWriter().print(rjo.build());
             }
+        } else if (option.equals("CustomerCount")) {
+            try (Connection connection = dataSource.getConnection()) {
+                JsonObjectBuilder count = Json.createObjectBuilder();
+                ResultSet result = CrudUtil.execute(connection, "SELECT COUNT(id) FROM Customer");
+                while (result.next()) {
+                    count.add("count", result.getString(1));
+                }
+                writer.print(count.build());
+
+
+            } catch (SQLException | ClassNotFoundException e) {
+
+                JsonObjectBuilder rjo = Json.createObjectBuilder();
+                rjo.add("state", "Error");
+                rjo.add("message", e.getLocalizedMessage());
+                rjo.add("data", "");
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                resp.getWriter().print(rjo.build());
+            }
         }
     }
 

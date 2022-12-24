@@ -219,9 +219,27 @@ public class OrdersServlet extends HttpServlet {
                     resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     resp.getWriter().print(rjo.build());
                 }
+                break;
+            case "ordersCount":
+                try (Connection connection = dataSource.getConnection()) {
+                    JsonObjectBuilder count = Json.createObjectBuilder();
+                    ResultSet result = CrudUtil.execute(connection, "SELECT COUNT(orderId) FROM `Orders`");
+                    while (result.next()) {
+                        count.add("count", result.getString(1));
+                    }
+                    writer.print(count.build());
 
+
+                } catch (SQLException | ClassNotFoundException e) {
+
+                    JsonObjectBuilder rjo = Json.createObjectBuilder();
+                    rjo.add("state", "Error");
+                    rjo.add("message", e.getLocalizedMessage());
+                    rjo.add("data", "");
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.getWriter().print(rjo.build());
+                }
                 break;
         }
-
     }
 }
