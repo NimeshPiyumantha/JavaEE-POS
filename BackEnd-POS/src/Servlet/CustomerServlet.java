@@ -48,7 +48,12 @@ public class CustomerServlet extends HttpServlet {
                     writer.print(customer.build());
 
                 } else {
-                    throw new RuntimeException("Empty Result..!");
+                    JsonObjectBuilder rjo = Json.createObjectBuilder();
+                    rjo.add("state", "Error");
+                    rjo.add("message", "Customer");
+                    rjo.add("data", "");
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.getWriter().print(rjo.build());
                 }
 
             } catch (SQLException | ClassNotFoundException e) {

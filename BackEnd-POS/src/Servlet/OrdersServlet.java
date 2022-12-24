@@ -50,7 +50,14 @@ public class OrdersServlet extends HttpServlet {
             if (!(b)) {
                 connection.rollback();
                 connection.setAutoCommit(true);
-                throw new RuntimeException("Order Issue");
+
+                JsonObjectBuilder rjo = Json.createObjectBuilder();
+                rjo.add("state", "Error");
+                rjo.add("message", "Order Issue");
+                rjo.add("data", "");
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                resp.getWriter().print(rjo.build());
+
             } else {
                 for (JsonValue orderDetail : oDetail) {
                     JsonObject object = orderDetail.asJsonObject();
@@ -66,7 +73,13 @@ public class OrdersServlet extends HttpServlet {
                     if (!(b1)) {
                         connection.rollback();
                         connection.setAutoCommit(true);
-                        throw new RuntimeException("Order Details Issue");
+
+                        JsonObjectBuilder rjo = Json.createObjectBuilder();
+                        rjo.add("state", "Error");
+                        rjo.add("message", "Order Details Issue");
+                        rjo.add("data", "");
+                        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                        resp.getWriter().print(rjo.build());
                     }
                 }
                 connection.commit();

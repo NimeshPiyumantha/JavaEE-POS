@@ -23,40 +23,6 @@ function unSuccessUpdateAlert(vale,vale2) {
     })
 }
 
-function yesNoAlertDelete(value) {
-    Swal.fire({
-        title: 'Do you want to Delete the \n' + value + ' ?',
-        showDenyButton: true,
-        showCancelButton: true,
-        confirmButtonText: 'Delete',
-        denyButtonText: `Don't Delete`,
-    }).then((result) => {
-        if (result.isConfirmed) {
-            if (deleteCustomer(value)) {
-                Swal.fire({
-                    position: 'top-end',
-                    icon: 'success',
-                    title: 'Delete Successfully',
-                    showConfirmButton: false,
-                    timer: 1500
-                })
-                $(this).remove();
-                loadAllCustomers();
-            } else {
-                Swal.fire({
-                    position: 'top-end',
-                    icon: 'error',
-                    title: 'Delete Unsuccessfully',
-                    showConfirmButton: false,
-                    timer: 1500
-                })
-            }
-        } else if (result.isDenied) {
-            Swal.fire(value + ' Delete Canceled!', '', 'info')
-        }
-    });
-}
-
 function yesNoAlertIDelete(value) {
     Swal.fire({
         title: 'Do you want to Delete the \n' + value + ' ?',
@@ -91,10 +57,10 @@ function yesNoAlertIDelete(value) {
     });
 }
 
-function emptyMassage() {
+function emptyMassage(value) {
     let timerInterval
     Swal.fire({
-        title: 'Empty Result!',
+        title:value +' Empty Result!',
         html: 'I will close in <b></b> milliseconds.',
         timer: 2000,
         timerProgressBar: true,
