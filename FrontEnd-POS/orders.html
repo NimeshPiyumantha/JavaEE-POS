@@ -7,6 +7,7 @@
     <!--link Bootstrap Framework-->
     <link href="assets/styles/bootstrap-5.2.1-dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/styles/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/styles/sweetalert2-11.6.16/sweetalert2.min.css" rel="stylesheet">
     <link href="assets/styles/style.css" rel="stylesheet">
 </head>
 <body>
@@ -87,7 +88,7 @@
                 <div class="row mt-1">
                     <div class="col-12 col-md-6 col-lg-6">
                         <label class="fw-bold" for="orderId">Order ID :</label>
-                        <input class="form-control border-dark" id="orderId" type="text" value="ODI-001">
+                        <input class="form-control border-dark" disabled id="orderId" type="text" value="ODI-001">
                     </div>
                     <div class="col-12 col-md-6 col-lg-6">
                         <label class="fw-bold" for="orderDate">Order Date :</label>
@@ -97,7 +98,8 @@
                 <div class="row mt-1">
                     <div class="col-12 col-md-6 col-lg-6">
                         <label class="fw-bold" for="cmbCustomerId">Customer ID :</label>
-                        <select aria-label="Default select example" class="form-select border-dark" id="cmbCustomerId">
+                        <select aria-label="Default select example" class="form-select border-dark" id="cmbCustomerId"
+                                value="Customer ID">
                         </select>
                     </div>
                     <div class="col-12 col-md-6 col-lg-6">
@@ -111,8 +113,8 @@
                         <input class="form-control border-dark" disabled id="customerAddress" type="text">
                     </div>
                     <div class="col-12 col-md-6 col-lg-6">
-                        <label class="fw-bold" for="customerContact">Salary :</label>
-                        <input class="form-control border-dark" disabled id="customerContact" type="text">
+                        <label class="fw-bold" for="customerSalary">Salary :</label>
+                        <input class="form-control border-dark" disabled id="customerSalary" type="text">
                     </div>
                 </div>
             </div>
@@ -124,7 +126,8 @@
                 <div class="row mt-1">
                     <div class="col-12 col-md-6 col-lg-6">
                         <label class="fw-bold" for="cmbItemCode">Item Code :</label>
-                        <select aria-label="Default select example" class="form-select border-dark" id="cmbItemCode">
+                        <select aria-label="Default select example" class="form-select border-dark" id="cmbItemCode"
+                                value="Item Code">
                         </select>
                     </div>
                     <div class="col-12 col-md-6 col-lg-6">
@@ -232,6 +235,7 @@
 
 <!--import jQuery library-->
 <script rel="script" src="assets/styles/jQuery/jquery-3.6.1.min.js"></script>
+<script rel="script" src="assets/styles/sweetalert2-11.6.16/sweetalert2.min.js"></script>
 <script rel="script" src="util/alert.js"></script>
 <script rel="script" src="util/validation.js"></script>
 
@@ -252,11 +256,11 @@
                 $("#cmbCustomerId").append(`<option>${id}</option>`);
             }
             generateOrderID();
-            alert(res.message);
+            console.log(res.message);
         },
         error: function (error) {
             let message = JSON.parse(error.responseText).message;
-            alert(message);
+            console.log(message);
         }
 
     });
@@ -273,11 +277,11 @@
                 console.log(res);
                 $("#customerName").val(res.name);
                 $("#customerAddress").val(res.address);
-                $("#customerContact").val(res.salary);
+                $("#customerSalary").val(res.salary);
             },
             error: function (error) {
                 let message = JSON.parse(error.responseText).message;
-                alert(message);
+                console.log(message);
             }
         })
 
@@ -295,11 +299,11 @@
 
                 $("#cmbItemCode").append(`<option>${code}</option>`);
             }
-            alert(res.message);
+            console.log(res.message);
         },
         error: function (error) {
             let message = JSON.parse(error.responseText).message;
-            alert(message);
+            console.log(message);
         }
     });
 
@@ -318,7 +322,7 @@
             },
             error: function (error) {
                 let message = JSON.parse(error.responseText).message;
-                alert(message);
+                console.log(message);
             }
         })
     });
@@ -336,6 +340,7 @@
      * */
     let tableRow = [];
     $("#btnAddToCart").on("click", function () {
+
         let duplicate = false;
         for (let i = 0; i < $("#tblAddToCart tr").length; i++) {
             if ($("#cmbItemCode option:selected").text() === $("#tblAddToCart tr").children(':nth-child(1)')[i].innerText) {
@@ -348,6 +353,7 @@
             loadCartTableDetail();
             reduceQty($("#buyQty").val());
             calcTotal($("#buyQty").val() * $("#itemPrice").val());
+            $('#cmbItemCode,#itemName,#itemPrice,#qtyOnHand,#buyQty').val("");
         } else if (duplicate === true) {
 
             manageQtyOnHand(tableRow.children(':nth-child(4)').text(), $("#buyQty").val());
@@ -569,13 +575,13 @@
             dataType: "json",
             data: JSON.stringify(orderOb),
             success: function (res) {
-                alert(res.message);
+                saveUpdateAlert("Order", res.message);
                 generateOrderID();
 
             },
             error: function (error) {
                 let message = JSON.parse(error.responseText).message;
-                alert(message);
+                unSuccessUpdateAlert("Order", message);
             }
         });
 
@@ -618,7 +624,27 @@
      * */
 
     $("#tblAddToCart").dblclick(function () {
-        $(this).children('tr').eq(0).remove();
+        Swal.fire({
+            title: 'Do you want to Delete the Select row?',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+            denyButtonText: 'No',
+            customClass: {
+                actions: 'my-actions',
+                cancelButton: 'order-1 right-gap',
+                confirmButton: 'order-2',
+                denyButton: 'order-3',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $(this).children('tr').eq(0).remove();
+                Swal.fire('Delete!', '', 'success')
+            } else if (result.isDenied) {
+                Swal.fire('Select row are not Delete', '', 'info')
+            }
+        })
+
     });
 
     /**
@@ -632,26 +658,6 @@
         if (response) {
         }
     });
-
-    function updateItemQty(itemIdQ) {
-        /*let itemQ = searchItemQty(itemIdQ);
-        if (itemQ != null) {
-            itemQ.qty = $("#qtyOnHand").val();
-            loadAllItems();
-            return true;
-        } else {
-            return false;
-        }*/
-    }
-
-    function searchItemQty(itemIdQ) {
-        /*for (let itemQ of items) {
-            if (itemQ.code === itemIdQ) {
-                return itemQ;
-            }
-        }
-        return null;*/
-    }
 
 </script>
 </body>

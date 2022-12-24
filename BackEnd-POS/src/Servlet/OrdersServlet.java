@@ -38,12 +38,9 @@ public class OrdersServlet extends HttpServlet {
         JsonObject jsonObject = reader.readObject();
         JsonArray oDetail = jsonObject.getJsonArray("detail");
 
-        System.out.println(oDetail);
-
         String customerId = jsonObject.getString("customerId");
         String date = jsonObject.getString("date");
         String orderId = jsonObject.getString("orderId");
-        System.out.println(customerId + " " + date + " " + orderId);
 
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
@@ -110,13 +107,8 @@ public class OrdersServlet extends HttpServlet {
                 int qty = Integer.parseInt(object.getString("qty"));
                 double price = Double.parseDouble(object.getString("unitPrice"));
 
-                boolean b1 = CrudUtil.execute(connection, "UPDATE Item SET qty=qty-? WHERE code=?", qty,itId);
-//                pstm = connection.prepareStatement("UPDATE Item SET qty=qty-? WHERE code=?");
-//
-//                pstm.setInt(1, Integer.parseInt(jsonObject.getString("qty")));
-//                pstm.setString(2, jsonObject.getString("code"));
-//
-//                b = pstm.executeUpdate() > 0;
+                boolean b1 = CrudUtil.execute(connection, "UPDATE Item SET qty=qty-? WHERE code=?", qty, itId);
+
             }
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);

@@ -168,11 +168,11 @@
                     let row = "<tr><td>" + orderId + "</td><td>" + date + "</td><td>" + cusId + "</td></tr>";
                     $("#tblOrder").append(row);
                 }
-                alert(res.message);
+                console.log(res.message);
             },
             error: function (error) {
                 let message = JSON.parse(error.responseText).message;
-                alert(message);
+                console.log(message);
             }
 
         });
@@ -196,11 +196,11 @@
                     let row = "<tr><td>" + OrderId + "</td><td>" + code + "</td><td>" + qty + "</td><td>" + unitPrice + "</td></tr>";
                     $("#tblOrderDetails").append(row);
                 }
-                alert(res.message);
+                console.log(res.message);
             },
             error: function (error) {
                 let message = JSON.parse(error.responseText).message;
-                alert(message);
+                console.log(message);
             }
 
         });

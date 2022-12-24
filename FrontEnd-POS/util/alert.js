@@ -13,11 +13,11 @@ function saveUpdateAlert(vale, value2) {
     });
 }
 
-function unSucsessUpdateAlert(vale) {
+function unSuccessUpdateAlert(vale,vale2) {
     Swal.fire({
         position: 'top-end',
         icon: 'error',
-        title: vale + 'Updated Unsuccessfully',
+        title: vale + " "+vale2,
         showConfirmButton: false,
         timer: 1500
     })
