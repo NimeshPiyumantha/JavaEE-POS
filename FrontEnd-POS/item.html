@@ -182,11 +182,11 @@
             data: formData,
             dataType: "json",
             success: function (res) {
-                alert(res.message);
+                saveUpdateAlert("item", res.message);
                 loadAllItems();
             },
             error: function (error) {
-                alert(JSON.parse(error.responseText).message);
+                unSuccessUpdateAlert("item", JSON.parse(error.responseText).message);
             }
         });
     });
@@ -211,12 +211,12 @@
             contentType: "application/json",
             data: JSON.stringify(itemOb),
             success: function (res) {
-                alert(res.message);
+                saveUpdateAlert("Item", res.message);
                 loadAllItems();
             },
             error: function (error) {
                 let message = JSON.parse(error.responseText).message;
-                alert(message);
+                unSuccessUpdateAlert("Item", message);
             }
         });
     });
@@ -240,12 +240,12 @@
             contentType: "application/json",
             data: JSON.stringify(itemOb),
             success: function (res) {
-                alert(res.message);
+                saveUpdateAlert("Item", res.message);
                 loadAllItems();
             },
             error: function (error) {
                 let message = JSON.parse(error.responseText).message;
-                alert(message);
+                unSuccessUpdateAlert("Item", message);
             }
         });
     });
@@ -268,7 +268,7 @@
                 error: function (error) {
                     loadAllItems();
                     let message = JSON.parse(error.responseText).message;
-                    alert(message);
+                    emptyMassage(message);
                 }
             })
         }
@@ -293,11 +293,11 @@
                 }
                 blindClickEvents();
                 setTextFieldValues("", "", "", "");
-                alert(res.message);
+                console.log(res.message);
             },
             error: function (error) {
                 let message = JSON.parse(error.responseText).message;
-                alert(message);
+                console.log(message);
             }
         });
     }

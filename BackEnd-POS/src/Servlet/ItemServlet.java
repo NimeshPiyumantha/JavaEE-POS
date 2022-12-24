@@ -50,7 +50,12 @@ public class ItemServlet extends HttpServlet {
                     writer.print(item.build());
 
                 } else {
-                    throw new RuntimeException("Empty Result..!");
+                    JsonObjectBuilder rjo = Json.createObjectBuilder();
+                    rjo.add("state", "Error");
+                    rjo.add("message", "Item");
+                    rjo.add("data", "");
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.getWriter().print(rjo.build());
                 }
 
             } catch (SQLException | ClassNotFoundException e) {
