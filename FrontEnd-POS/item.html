@@ -274,6 +274,31 @@
         }
     });
 
+    function generateItemID() {
+        $("#txtItemID").val("I00-001");
+        $.ajax({
+            url: baseUrl + "item?option=ItemIdGenerate",
+            method: "GET",
+            contentType: "application/json",
+            dataType: "json",
+            success: function (resp) {
+                let code = resp.code;
+                let tempId = parseInt(code.split("-")[1]);
+                tempId = tempId + 1;
+                if (tempId <= 9) {
+                    $("#txtItemID").val("I00-00" + tempId);
+                } else if (tempId <= 99) {
+                    $("#txtItemID").val("I00-0" + tempId);
+                } else {
+                    $("#txtItemID").val("I00-" + tempId);
+                }
+            },
+            error: function (ob, statusText, error) {
+
+            }
+        });
+    }
+
     function loadAllItems() {
         $("#ItemTable").empty();
         $.ajax({
@@ -292,6 +317,7 @@
                     $("#ItemTable").append(row);
                 }
                 blindClickEvents();
+                generateItemID();
                 setTextFieldValues("", "", "", "");
                 console.log(res.message);
             },
