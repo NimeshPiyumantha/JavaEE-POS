@@ -111,7 +111,7 @@
                 <form action="item" id="itemForm">
                     <div class="mb-3 ms-3 me-3 mt-3 ">
                         <label class="fw-bold" for="txtItemID">Item Code :</label>
-                        <input class="form-control " id="txtItemID" name="code" type="text">
+                        <input class="form-control" id="txtItemID" name="code" type="text">
                         <span class="control-error"></span>
                     </div>
 
@@ -317,8 +317,8 @@
                     $("#ItemTable").append(row);
                 }
                 blindClickEvents();
-                generateItemID();
                 setTextFieldValues("", "", "", "");
+                generateItemID();
                 console.log(res.message);
             },
             error: function (error) {

@@ -95,6 +95,24 @@ public class CustomerServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 resp.getWriter().print(rjo.build());
             }
+        } else if (option.equals("CustomerIdGenerate")) {
+            try (Connection connection = dataSource.getConnection()) {
+                JsonObjectBuilder CusId = Json.createObjectBuilder();
+                ResultSet result = CrudUtil.execute(connection, "SELECT id FROM Customer ORDER BY id DESC LIMIT 1");
+                while (result.next()) {
+                    CusId.add("id", result.getString(1));
+                }
+                writer.print(CusId.build());
+
+            } catch (SQLException | ClassNotFoundException e) {
+
+                JsonObjectBuilder rjo = Json.createObjectBuilder();
+                rjo.add("state", "Error");
+                rjo.add("message", e.getLocalizedMessage());
+                rjo.add("data", "");
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                resp.getWriter().print(rjo.build());
+            }
         }
     }
 
