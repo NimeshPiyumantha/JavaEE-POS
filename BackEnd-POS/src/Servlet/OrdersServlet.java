@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -48,36 +49,39 @@ public class OrdersServlet extends HttpServlet {
             connection.setAutoCommit(false);
 
             OrderDTO orderDTO = new OrderDTO(orderId, date, customerId);
-           boolean b =  CrudUtil.execute(connection, "INSERT INTO orders VALUES(?,?,?)", orderDTO.getId(), orderDTO.getDate(), orderDTO.getCustomerId());
+            boolean b = CrudUtil.execute(connection, "INSERT INTO orders VALUES(?,?,?)", orderDTO.getId(), orderDTO.getDate(), orderDTO.getCustomerId());
             if (!(b)) {
                 connection.rollback();
                 connection.setAutoCommit(true);
                 throw new RuntimeException("Order Issue");
-            }else{
-            for (JsonValue orderDetail : oDetail) {
-                JsonObject object = orderDetail.asJsonObject();
+            } else {
+                for (JsonValue orderDetail : oDetail) {
+                    JsonObject object = orderDetail.asJsonObject();
 
-                String orId = object.getString("orderId");
-                String itId = object.getString("itemId");
-                int qty = Integer.parseInt(object.getString("qty"));
-                double price = Double.parseDouble(object.getString("unitPrice"));
+                    String orId = object.getString("orderId");
+                    String itId = object.getString("itemId");
+                    int qty = Integer.parseInt(object.getString("qty"));
+                    double price = Double.parseDouble(object.getString("unitPrice"));
 
-                OrderDetailDTO orderDetailDTO = new OrderDetailDTO(orId, itId, qty, price);
-                boolean b1 = CrudUtil.execute(connection, "INSERT INTO OrderDetail VALUES(?,?,?,?)", orderDetailDTO.getOrderId(), orderDetailDTO.getItemCode(), orderDetailDTO.getQty(), orderDetailDTO.getTotal());
-                if (!(b1)) {
-                    connection.rollback();
-                    connection.setAutoCommit(true);
-                    throw new RuntimeException("Order Details Issue");
+                    OrderDetailDTO orderDetailDTO = new OrderDetailDTO(orId, itId, qty, price);
+                    boolean b1 = CrudUtil.execute(connection, "INSERT INTO OrderDetail VALUES(?,?,?,?)", orderDetailDTO.getOrderId(), orderDetailDTO.getItemCode(), orderDetailDTO.getQty(), orderDetailDTO.getTotal());
+
+                    if (!(b1)) {
+                        connection.rollback();
+                        connection.setAutoCommit(true);
+                        throw new RuntimeException("Order Details Issue");
+                    }
                 }
-            }
                 connection.commit();
                 connection.setAutoCommit(true);
+
 
                 JsonObjectBuilder job = Json.createObjectBuilder();
                 job.add("state", "Ok");
                 job.add("message", "Successfully Place Order..!");
                 job.add("data", "");
                 resp.getWriter().print(job.build());
+
             }
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -87,6 +91,35 @@ public class OrdersServlet extends HttpServlet {
             rjo.add("data", "");
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().print(rjo.build());
+        }
+
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        JsonReader reader = Json.createReader(req.getReader());
+        JsonObject jsonObject = reader.readObject();
+        JsonArray oDetail = jsonObject.getJsonArray("detail");
+        try (Connection connection = dataSource.getConnection()) {
+            for (JsonValue orderDetail : oDetail) {
+                JsonObject object = orderDetail.asJsonObject();
+
+                String orId = object.getString("orderId");
+                String itId = object.getString("itemId");
+                int qty = Integer.parseInt(object.getString("qty"));
+                double price = Double.parseDouble(object.getString("unitPrice"));
+
+                boolean b1 = CrudUtil.execute(connection, "UPDATE Item SET qty=qty-? WHERE code=?", qty,itId);
+//                pstm = connection.prepareStatement("UPDATE Item SET qty=qty-? WHERE code=?");
+//
+//                pstm.setInt(1, Integer.parseInt(jsonObject.getString("qty")));
+//                pstm.setString(2, jsonObject.getString("code"));
+//
+//                b = pstm.executeUpdate() > 0;
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
     }
