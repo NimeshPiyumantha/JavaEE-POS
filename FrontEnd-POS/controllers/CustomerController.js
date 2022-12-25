@@ -287,26 +287,14 @@ $("#txtCustomerSalary").on('keydown', function (event) {
     }
 });
 
-function setButtonStateCustomerSave(value) {
+function setButtonStateCustomer(value) {
     if (value > 0) {
         $("#btnSaveCustomer").attr('disabled', true);
-    } else {
-        $("#btnSaveCustomer").attr('disabled', false);
-    }
-}
-
-function setButtonStateCustomerUpdate(value) {
-    if (value > 0) {
         $("#btnUpdateCustomer").attr('disabled', true);
-    } else {
-        $("#btnUpdateCustomer").attr('disabled', false);
-    }
-}
-
-function setButtonStateCustomerDelete(value) {
-    if (value > 0) {
         $("#btnDeleteCustomer").attr('disabled', true);
     } else {
+        $("#btnSaveCustomer").attr('disabled', false);
+        $("#btnUpdateCustomer").attr('disabled', false);
         $("#btnDeleteCustomer").attr('disabled', false);
     }
 }

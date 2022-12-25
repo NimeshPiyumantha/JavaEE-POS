@@ -3,6 +3,8 @@
  * @since : 0.1.0
  **/
 
+let baseUrl = "http://localhost:8080/Pos_JavaEE/";
+loadAllItems();
 /**
  * Item Save
  * */
@@ -15,139 +17,142 @@ $("#btnDeleteItem").attr('disabled', true);
  * Item ID
  * */
 function generateItemID() {
-    if (items.length > 0) {
-        let lastId = items[items.length - 1].code;
-        let digit = lastId.substring(6);
-        let number = parseInt(digit) + 1;
-        return lastId.replace(digit, number);
-    } else {
-        return "I00-001";
-    }
+    $("#txtItemID").val("I00-001");
+    $.ajax({
+        url: baseUrl + "item?option=ItemIdGenerate",
+        method: "GET",
+        contentType: "application/json",
+        dataType: "json",
+        success: function (resp) {
+            let code = resp.code;
+            let tempId = parseInt(code.split("-")[1]);
+            tempId = tempId + 1;
+            if (tempId <= 9) {
+                $("#txtItemID").val("I00-00" + tempId);
+            } else if (tempId <= 99) {
+                $("#txtItemID").val("I00-0" + tempId);
+            } else {
+                $("#txtItemID").val("I00-" + tempId);
+            }
+        },
+        error: function (ob, statusText, error) {
+
+        }
+    });
 }
 
 /**
  * Button Add New Item
  * */
-$("#btnAddItem").on("click", function () {
-
-    //create object
-    let itemsArray = new itemDTO(
-        $("#txtItemID").val(),
-        $("#txtItemName").val(),
-        $("#txtItemQty").val(),
-        $("#txtItemPrice").val());
-
-    clearItemTextFields();
-
-    //Alert Save
-    saveUpdateAlert("Items", "saved.");
-
-    //Add the customer object to the array
-    items.push(itemsArray);
-
-    /* console.log(customers);*/
-    $("#txtItemID").val(generateItemID());
-    loadAllItems();
-    $("#txtItemsCount").text(items.length);
+$("#btnAddItem").click(function () {
+    let formData = $("#itemForm").serialize();
+    $.ajax({
+        url: baseUrl + "item",
+        method: "post",
+        data: formData,
+        dataType: "json",
+        success: function (res) {
+            saveUpdateAlert("item", res.message);
+            loadAllItems();
+        },
+        error: function (error) {
+            unSuccessUpdateAlert("item", JSON.parse(error.responseText).message);
+        }
+    });
 });
 
 /**
  * clear input fields Values Method
  * */
-function clearItemTextFields() {
-    txtItemID.value = '';
-    txtItemName.value = '';
-    txtItemQty.value = '';
-    txtItemPrice.value = '';
+function setTextFieldValues(code, description, qty, price) {
+    $("#txtItemID").val(code);
+    $("#txtItemName").val(description);
+    $("#txtItemQty").val(qty);
+    $("#txtItemPrice").val(price);
     $("#txtItemName").focus();
     checkValidity(ItemsValidations);
     $("#btnAddItem").attr('disabled', true);
     $("#btnUpdateItem").attr('disabled', true);
     $("#btnDeleteItem").attr('disabled', true);
+
 }
 
 /**
  * load all Item Method
  * */
 function loadAllItems() {
-
-    //remove all the table body content before adding data
     $("#ItemTable").empty();
+    $.ajax({
+        url: baseUrl + "item?option=loadAllItem",
+        method: "GET",
+        dataType: "json",
+        success: function (res) {
+            console.log(res);
+            for (let i of res.data) {
+                let code = i.code;
+                let description = i.description;
+                let qty = i.qty;
+                let unitPrice = i.unitPrice;
 
-    // get all items records from the array
-    for (var item of items) {
-        console.log(item);// items object
-
-        // Using String Literals to do the same thing as above
-        var row = `<tr><td>${item.code}</td><td>${item.name}</td><td>${item.qty}</td><td>${item.price}</td></tr>`;
-
-        //then add it to the table body of items table
-        $("#ItemTable").append(row);
-    }
-    blindClickEventsItem();
-    dblRowClickEventsItem();
-    $("#txtItemID").val(generateItemID());
-    loadAllItemsForOption();
+                let row = "<tr><td>" + code + "</td><td>" + description + "</td><td>" + qty + "</td><td>" + unitPrice + "</td></tr>";
+                $("#ItemTable").append(row);
+            }
+            blindClickEvents();
+            generateItemID();
+            setTextFieldValues("", "", "", "");
+            console.log(res.message);
+        },
+        error: function (error) {
+            let message = JSON.parse(error.responseText).message;
+            console.log(message);
+        }
+    });
 }
 
 /**
  * Table Listener Click and Load textFields
  * */
-function blindClickEventsItem() {
-    $("#ItemTable>tr").click(function () {
+function blindClickEvents() {
+    $("#ItemTable>tr").on("click", function () {
         let code = $(this).children().eq(0).text();
-        let name = $(this).children().eq(1).text();
+        let description = $(this).children().eq(1).text();
         let qty = $(this).children().eq(2).text();
-        let price = $(this).children().eq(3).text();
-        console.log(code, name, qty, price);
+        let unitPrice = $(this).children().eq(3).text();
+        console.log(code, description, qty, unitPrice);
 
         $("#txtItemID").val(code);
-        $("#txtItemName").val(name);
+        $("#txtItemName").val(description);
         $("#txtItemQty").val(qty);
-        $("#txtItemPrice").val(price);
-
-        $("#btnAddItem").attr('disabled', true);
-        $("#btnDeleteItem").attr('disabled', false);
-
+        $("#txtItemPrice").val(unitPrice);
     });
+    $("#btnAddItem").attr('disabled', true);
 }
 
-/**
- * Table Listener double click and Click and Remove textFields
- * */
-function dblRowClickEventsItem() {
-    $("#ItemTable>tr").on('dblclick', function () {
-        let deleteItemID = $(this).children().eq(0).text();
-        yesNoAlertIDelete(deleteItemID);
-    });
-}
 
 /**
  * Search id and Load Table
  * */
 $("#ItemIdSearch").on("keypress", function (event) {
     if (event.which === 13) {
-        var resultI = items.find(({code}) => code === $("#ItemIdSearch").val());
-        console.log(resultI);
-
-        if (resultI != null) {
-            $("#ItemTable").empty();
-            var row = `<tr><td>${resultI.code}</td><td>${resultI.name}</td><td>${resultI.qty}</td><td>${resultI.price}</td></tr>`;
-            $("#ItemTable").append(row);
-
-            $("#txtItemID").val(resultI.code);
-            $("#txtItemName").val(resultI.name);
-            $("#txtItemQty").val(resultI.qty);
-            $("#txtItemPrice").val(resultI.price);
-
-            $("#btnAddItem").attr('disabled', true);
-            $("#btnDeleteItem").attr('disabled', false);
-
-        } else {
-            emptyMassage();
-            clearItemTextFields();
-            loadAllItems();
-        }
+        var search = $("#ItemIdSearch").val();
+        $("#ItemTable").empty();
+        $.ajax({
+            url: baseUrl + "item?code=" + search + "&option=searchItemCode",
+            method: "GET",
+            contentType: "application/json",
+            dataType: "json",
+            success: function (res) {
+                console.log(res);
+                let row = "<tr><td>" + res.code + "</td><td>" + res.description + "</td><td>" + res.qty + "</td><td>" + res.unitPrice + "</td></tr>";
+                $("#ItemTable").append(row);
+                blindClickEvents();
+            },
+            error: function (error) {
+                loadAllItems();
+                let message = JSON.parse(error.responseText).message;
+                emptyMassage(message);
+            }
+        })
     }
 });
 
@@ -156,76 +161,75 @@ $("#ItemIdSearch").on("keypress", function (event) {
  * */
 
 /**
- * Update Button
+ * Update Action
  * */
-$("#btnUpdateItem").on( "click", function() {
-    let ItemId = $("#txtItemID").val();
-    let response = updateItem(ItemId);
-    if (response) {
-        saveUpdateAlert(ItemId, "updated.");
-        clearItemTextFields();
-        loadAllItems();
-    } else {
-        unSucsessUpdateAlert(ItemId);
+$("#btnUpdateItem").click(function () {
+
+    let code = $("#txtItemID").val();
+    let description = $("#txtItemName").val();
+    let qty = $("#txtItemQty").val();
+    let unitPrice = $("#txtItemPrice").val();
+
+    var itemOb = {
+        code: code,
+        description: description,
+        qty: qty,
+        unitPrice: unitPrice
     }
+
+    $.ajax({
+        url: baseUrl + "item",
+        method: "put",
+        contentType: "application/json",
+        data: JSON.stringify(itemOb),
+        success: function (res) {
+            saveUpdateAlert("Item", res.message);
+            loadAllItems();
+        },
+        error: function (error) {
+            let message = JSON.parse(error.responseText).message;
+            unSuccessUpdateAlert("Item", message);
+        }
+    });
 });
 
-/**
- * Update Methods
- * */
-function updateItem(itemId) {
-    let item = searchItem(itemId);
-    if (item != null) {
-        item.code = $("#txtItemID").val();
-        item.name = $("#txtItemName").val();
-        item.qty = $("#txtItemQty").val();
-        item.price = $("#txtItemPrice").val();
-        return true;
-    } else {
-        return false;
-    }
-}
 
 /**
  * Item Delete
  * */
 
 /**
- * Delete Button
+ * Delete Action
  * */
-$("#btnDeleteItem").on( "click", function() {
-    let deleteIID = $("#txtItemID").val();
+$("#btnDeleteItem").click(function () {
 
-    yesNoAlertIDelete(deleteIID);
+    let itCode = $("#txtItemID").val();
+    let itDescription = $("#txtItemName").val();
+    let itQty = $("#txtItemQty").val();
+    let itUnitPrice = $("#txtItemPrice").val();
+
+    const itemOb = {
+        code: itCode,
+        description: itDescription,
+        qty: itQty,
+        unitPrice: itUnitPrice
+    }
+    $.ajax({
+        url: baseUrl + "item",
+        method: "delete",
+        contentType: "application/json",
+        data: JSON.stringify(itemOb),
+        success: function (res) {
+            saveUpdateAlert("Item", res.message);
+            loadAllItems();
+        },
+        error: function (error) {
+            let message = JSON.parse(error.responseText).message;
+            unSuccessUpdateAlert("Item", message);
+        }
+    });
 });
 
-/**
- * Delete Methods
- * */
-function deleteItems(itemID) {
-    let item = searchItem(itemID);
-    if (item != null) {
-        let indexNumber1 = items.indexOf(item);
-        items.splice(indexNumber1, 1);
-        loadAllItems();
-        clearItemTextFields();
-        return true;
-    } else {
-        return false;
-    }
-}
-
-/**
- * Search Methods
- * */
-function searchItem(itemID) {
-    for (let item of items) {
-        if (item.code === itemID) {
-            return item;
-        }
-    }
-    return null;
-}
 
 /**
  * Auto Forces Input Fields Save
@@ -301,18 +305,14 @@ $("#txtItemPrice").on('keydown', function (event) {
     }
 });
 
-function setButtonStateItemSave(value) {
+function setButtonStateItem(value) {
     if (value > 0) {
         $("#btnAddItem").attr('disabled', true);
+        $("#btnUpdateItem").attr('disabled', true);
+        $("#btnDeleteItem").attr('disabled', true);
     } else {
         $("#btnAddItem").attr('disabled', false);
-    }
-}
-
-function setButtonStateItemUpdate(value) {
-    if (value > 0) {
-        $("#btnUpdateItem").attr('disabled', true);
-    } else {
         $("#btnUpdateItem").attr('disabled', false);
+        $("#btnDeleteItem").attr('disabled', false);
     }
 }
