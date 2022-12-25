@@ -3,6 +3,8 @@
  * @since : 0.1.0
  **/
 
+let baseUrl = "http://localhost:8080/Pos_JavaEE/";
+
 $("#btnPurchase").attr('disabled', true);
 $("#btnAddToCart").attr('disabled', true);
 
@@ -15,50 +17,121 @@ $("#btnAddToCart").attr('disabled', true);
  * Order ID
  * */
 function generateOrderID() {
-    if (orders.length > 0) {
-        let lastId = orders[orders.length - 1].oId;
-        let digit = lastId.substring(6);
-        let number = parseInt(digit) + 1;
-        return lastId.replace(digit, number);
-    } else {
-        return "ODI-001";
-    }
+    $("#orderId").val("ODI-001");
+    $.ajax({
+        url: baseUrl + "orders?option=OrderIdGenerate",
+        method: "GET",
+        contentType: "application/json",
+        dataType: "json",
+        success: function (resp) {
+            let orderId = resp.orderId;
+            let tempId = parseInt(orderId.split("-")[1]);
+            tempId = tempId + 1;
+            if (tempId <= 9) {
+                $("#orderId").val("ODI-00" + tempId);
+            } else if (tempId <= 99) {
+                $("#orderId").val("ODI-0" + tempId);
+            } else {
+                $("#orderId").val("ODI-" + tempId);
+            }
+        },
+        error: function (ob, statusText, error) {
+
+        }
+    });
 }
 
 /**
  * Invoice Details
  * Customer Select Combo
  * */
-function loadAllCustomersForOption() {
-    $("#cmbCustomerId").empty();
-    for (let cus of customers) {
-        $("#cmbCustomerId").append(`<option>${cus.id}</option>`);
-    }
-}
+$("#cmbCustomerId").empty();
+$.ajax({
+    url: baseUrl + "customer?option=loadAllCustomer",
+    method: "GET",
+    dataType: "json",
+    success: function (res) {
+        console.log(res);
 
+        for (let i of res.data) {
+            let id = i.id;
+
+            $("#cmbCustomerId").append(`<option>${id}</option>`);
+        }
+        generateOrderID();
+        console.log(res.message);
+    },
+    error: function (error) {
+        let message = JSON.parse(error.responseText).message;
+        console.log(message);
+    }
+
+});
+
+/** Customer cmb Search */
 $("#cmbCustomerId").click(function () {
-    let rCmbC = customers.find(({id}) => id === $("#cmbCustomerId").val());
-    $("#customerName").val(rCmbC.name);
-    $("#customerAddress").val(rCmbC.address);
-    $("#customerContact").val(rCmbC.contact);
+    var search = $("#cmbCustomerId").val();
+    $.ajax({
+        url: baseUrl + "customer?id=" + search + "&option=searchCusId",
+        method: "GET",
+        contentType: "application/json",
+        dataType: "json",
+        success: function (res) {
+            console.log(res);
+            $("#customerName").val(res.name);
+            $("#customerAddress").val(res.address);
+            $("#customerSalary").val(res.salary);
+        },
+        error: function (error) {
+            let message = JSON.parse(error.responseText).message;
+            console.log(message);
+        }
+    })
+
 });
 
 /**
  * Items Details
  * Item Select Combo
  * */
-function loadAllItemsForOption() {
-    $("#cmbItemCode").empty();
-    for (let item of items) {
-        $("#cmbItemCode").append(`<option>${item.code}</option>`);
+$("#cmbItemCode").empty();
+$.ajax({
+    url: baseUrl + "item?option=loadAllItem",
+    method: "GET",
+    dataType: "json",
+    success: function (res) {
+        console.log(res);
+        for (let i of res.data) {
+            let code = i.code;
+
+            $("#cmbItemCode").append(`<option>${code}</option>`);
+        }
+        console.log(res.message);
+    },
+    error: function (error) {
+        let message = JSON.parse(error.responseText).message;
+        console.log(message);
     }
-}
+});
 
 $("#cmbItemCode").click(function () {
-    let rCmbI = items.find(({code}) => code === $("#cmbItemCode").val());
-    $("#itemName").val(rCmbI.name);
-    $("#itemPrice").val(rCmbI.price);
-    $("#qtyOnHand").val(rCmbI.qty);
+    var search = $("#cmbItemCode").val();
+    $.ajax({
+        url: baseUrl + "item?code=" + search + "&option=searchItemCode",
+        method: "GET",
+        contentType: "application/json",
+        dataType: "json",
+        success: function (res) {
+            console.log(res);
+            $("#itemName").val(res.description);
+            $("#itemPrice").val(res.unitPrice);
+            $("#qtyOnHand").val(res.qty);
+        },
+        error: function (error) {
+            let message = JSON.parse(error.responseText).message;
+            console.log(message);
+        }
+    })
 });
 
 /**
@@ -83,7 +156,8 @@ let subTotal = 0;
  * Place order
  * */
 let tableRow = [];
-$("#btnAddToCart").on( "click", function() {
+$("#btnAddToCart").on("click", function () {
+
     let duplicate = false;
     for (let i = 0; i < $("#tblAddToCart tr").length; i++) {
         if ($("#cmbItemCode option:selected").text() === $("#tblAddToCart tr").children(':nth-child(1)')[i].innerText) {
@@ -96,7 +170,9 @@ $("#btnAddToCart").on( "click", function() {
         loadCartTableDetail();
         reduceQty($("#buyQty").val());
         calcTotal($("#buyQty").val() * $("#itemPrice").val());
-    }else if (duplicate === true) {
+        $('#cmbItemCode,#itemName,#itemPrice,#qtyOnHand,#buyQty').val("");
+        $("#btnAddToCart").attr('disabled', true);
+    } else if (duplicate === true) {
 
         manageQtyOnHand(tableRow.children(':nth-child(4)').text(), $("#buyQty").val());
         $(tableRow).children(':nth-child(4)').text($("#buyQty").val());
@@ -252,48 +328,7 @@ $(document).on("change keyup blur", "#txtCash", function () {
     }
 });
 
-/**
- * Logics
- * Place order
- * placeOrder to Order Array
- * method
- * */
-function placeOrder() {
-    //create object
-    let orderArrayList = new orderDTO(
-        $("#orderId").val(),
-        $("#cmbCustomerId").val(),
-        $("#orderDate").val(),
-        $("#txtSubTotal").val(),
-        $("#txtDiscount").val()
-    );
 
-    orders.push(orderArrayList);
-    console.log(orderArrayList);
-
-    saveUpdateAlert("Place Ordering", "Successfully.");
-}
-
-/**
- * Logics
- * Place order
- * placeOrder to Order Details Array
- * method
- * */
-function pushOrderDetails() {
-    for (let i = 0; i < $("#tblAddToCart tr").length; i++) {
-        let orderId = $("#orderId").val();
-        let cusId = $("#cmbCustomerId").val();
-        let itemId = $("#tblAddToCart tr").children(':nth-child(1)')[i].innerText;
-        let qty = $("#tblAddToCart tr").children(':nth-child(4)')[i].innerText;
-        let total = $("#tblAddToCart tr").children(':nth-child(5)')[i].innerText;
-
-        let orderDetailArrayList = new orderDetailDTO(orderId, cusId, itemId, qty, total);
-
-        orderDetails.push(orderDetailArrayList);
-        console.log(orderDetailArrayList);
-    }
-}
 
 /**
  * Logics
@@ -302,16 +337,60 @@ function pushOrderDetails() {
  * */
 
 $("#btnPurchase").click(function () {
-    placeOrder();
-    pushOrderDetails();
-    $("#orderId").val( generateOrderID());
+
+    var orderDetails = [];
+    for (let i = 0; i < $("#tblAddToCart tr").length; i++) {
+        var detailOb = {
+            orderId: $("#orderId").val(),
+            itemId: $("#tblAddToCart tr").children(':nth-child(1)')[i].innerText,
+            qty: $("#tblAddToCart tr").children(':nth-child(4)')[i].innerText,
+            unitPrice: $("#tblAddToCart tr").children(':nth-child(5)')[i].innerText
+        }
+        orderDetails.push(detailOb);
+    }
+    var orderId = $("#orderId").val();
+    var customerId = $("#cmbCustomerId option:selected").text();
+    var date = $("#orderDate").val();
+
+    var orderOb = {
+        "orderId": orderId,
+        "date": date,
+        "customerId": customerId,
+        "detail": orderDetails
+    }
+    console.log(orderOb)
+    console.log(orderDetails)
+
+    $.ajax({
+        url: baseUrl + "orders",
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify(orderOb),
+        success: function (res) {
+            saveUpdateAlert("Order", res.message);
+            generateOrderID();
+
+        },
+        error: function (error) {
+            let message = JSON.parse(error.responseText).message;
+            unSuccessUpdateAlert("Order", message);
+        }
+    });
+
+    $.ajax({
+        url: baseUrl + "orders",
+        method: "PUT",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify(orderOb)
+    });
+
     clearDetails();
     $("#tblAddToCart").empty();
     $("#btnPurchase").attr('disabled', true);
     $("#btnAddToCart").attr('disabled', true);
     total = 0;
-    $("#txtOrderCount").text(orders.length);
-
 });
 
 /**
@@ -321,6 +400,9 @@ $("#btnPurchase").click(function () {
  * */
 function clearDetails() {
     $('#cmbCustomerId,#customerName,#customerAddress,#customerSalary,#cmbItemCode,#itemName,#itemPrice,#qtyOnHand,#buyQty,#txtDiscount,#txtTotal,#txtDiscount,#txtSubTotal,#txtCash,#txtBalance').val("");
+    $("#tblAddToCart").empty();
+    $("#btnPurchase").attr('disabled', true);
+    $("#btnAddToCart").attr('disabled', true);
 }
 
 /**
@@ -361,35 +443,3 @@ $("#tblAddToCart").dblclick(function () {
     })
 
 });
-
-/**
- * Logics
- * Place order
- * Update Items in buy Qty
- * */
-$("#btnAddToCart").click(function () {
-    let itemIdQ = $("#cmbItemCode").val();
-    let response = updateItemQty(itemIdQ);
-    if (response) {
-    }
-});
-
-function updateItemQty(itemIdQ) {
-    let itemQ = searchItemQty(itemIdQ);
-    if (itemQ != null) {
-        itemQ.qty = $("#qtyOnHand").val();
-        loadAllItems();
-        return true;
-    } else {
-        return false;
-    }
-}
-
-function searchItemQty(itemIdQ) {
-    for (let itemQ of items) {
-        if (itemQ.code === itemIdQ) {
-            return itemQ;
-        }
-    }
-    return null;
-}
