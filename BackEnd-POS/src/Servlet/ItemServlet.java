@@ -1,6 +1,6 @@
 package Servlet;
 
-import model.ItemDTO;
+import dto.ItemDTO;
 
 import util.CrudUtil;
 

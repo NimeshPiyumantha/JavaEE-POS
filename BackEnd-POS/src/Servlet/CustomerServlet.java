@@ -1,6 +1,6 @@
 package Servlet;
 
-import model.CustomerDTO;
+import dto.CustomerDTO;
 import util.CrudUtil;
 
 import javax.annotation.Resource;
