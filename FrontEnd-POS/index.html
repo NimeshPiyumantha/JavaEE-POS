@@ -185,58 +185,6 @@
 <!--import jQuery library-->
 <script rel="script" src="assets/styles/jQuery/jquery-3.6.1.min.js"></script>
 
-<script>
-    let baseUrl = "http://localhost:8080/Pos_JavaEE/";
-
-        $("#txtCustomerCount").val("00");
-        $.ajax({
-            url: baseUrl + "customer?option=CustomerCount",
-            method: "GET",
-            contentType: "application/json",
-            dataType: "json",
-            success: function (resp) {
-                let num = resp.count;
-                $("#txtCustomerCount").text(num);
-
-            },
-            error: function (ob, statusText, error) {
-
-            }
-        });
-
-    $("#txtItemsCount").val("00");
-    $.ajax({
-        url: baseUrl + "item?option=itemCount",
-        method: "GET",
-        contentType: "application/json",
-        dataType: "json",
-        success: function (resp) {
-            let num = resp.count;
-            $("#txtItemsCount").text(num);
-
-        },
-        error: function (ob, statusText, error) {
-
-        }
-    });
-
-    $("#txtOrderCount").val("00");
-    $.ajax({
-        url: baseUrl + "orders?option=ordersCount",
-        method: "GET",
-        contentType: "application/json",
-        dataType: "json",
-        success: function (resp) {
-            let num = resp.count;
-            $("#txtOrderCount").text(num);
-
-        },
-        error: function (ob, statusText, error) {
-
-        }
-    });
-
-
-</script>
+<script src="controllers/DashboardController.js"></script>
 </body>
 </html>

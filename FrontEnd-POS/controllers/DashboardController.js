@@ -3,59 +3,52 @@
  * @since : 0.1.0
  **/
 
-$(document).ready(function () {
-    $("#HomeSection").css('display', 'block');
-    $("#CustomerSection").css('display', 'none');
-    $("#ItemSection").css('display', 'none');
-    $("#OrderSection").css('display', 'none');
-    $("#OrderDetails").css('display', 'none');
+let baseUrl = "http://localhost:8080/Pos_JavaEE/";
+
+$("#txtCustomerCount").val("00");
+$.ajax({
+    url: baseUrl + "customer?option=CustomerCount",
+    method: "GET",
+    contentType: "application/json",
+    dataType: "json",
+    success: function (resp) {
+        let num = resp.count;
+        $("#txtCustomerCount").text(num);
+
+    },
+    error: function (ob, statusText, error) {
+
+    }
 });
 
-$("#homeBtn").click(function () {
-    $("#HomeSection").css('display', 'block');
-    $("#CustomerSection").css('display', 'none');
-    $("#ItemSection").css('display', 'none');
-    $("#OrderSection").css('display', 'none');
-    $("#OrderDetails").css('display', 'none');
+$("#txtItemsCount").val("00");
+$.ajax({
+    url: baseUrl + "item?option=itemCount",
+    method: "GET",
+    contentType: "application/json",
+    dataType: "json",
+    success: function (resp) {
+        let num = resp.count;
+        $("#txtItemsCount").text(num);
+
+    },
+    error: function (ob, statusText, error) {
+
+    }
 });
 
-$("#customerBtn").click(function () {
-    $("#HomeSection").css('display', 'none');
-    $("#CustomerSection").css('display', 'block');
-    $("#ItemSection").css('display', 'none');
-    $("#OrderSection").css('display', 'none');
-    $("#OrderDetails").css('display', 'none');
+$("#txtOrderCount").val("00");
+$.ajax({
+    url: baseUrl + "orders?option=ordersCount",
+    method: "GET",
+    contentType: "application/json",
+    dataType: "json",
+    success: function (resp) {
+        let num = resp.count;
+        $("#txtOrderCount").text(num);
 
-    $("#txtCusId").val(generateCustomerID());
-});
+    },
+    error: function (ob, statusText, error) {
 
-$("#itemBtn").click(function () {
-    $("#HomeSection").css('display', 'none');
-    $("#CustomerSection").css('display', 'none');
-    $("#ItemSection").css('display', 'block');
-    $("#OrderSection").css('display', 'none');
-    $("#OrderDetails").css('display', 'none');
-
-    $("#txtItemID").val(generateItemID());
-});
-
-$("#orderBtn").click(function () {
-    $("#HomeSection").css('display', 'none');
-    $("#CustomerSection").css('display', 'none');
-    $("#ItemSection").css('display', 'none');
-    $("#OrderSection").css('display', 'block');
-    $("#OrderDetails").css('display', 'none');
-
-    $("#orderId").val(generateOrderID());
-});
-
-$("#orderDetailsBtn").click(function () {
-    $("#HomeSection").css('display', 'none');
-    $("#CustomerSection").css('display', 'none');
-    $("#ItemSection").css('display', 'none');
-    $("#OrderSection").css('display', 'none');
-    $("#OrderDetails").css('display', 'block');
-
-    loadAllOrders();
-    loadAllOrderDetails();
+    }
 });

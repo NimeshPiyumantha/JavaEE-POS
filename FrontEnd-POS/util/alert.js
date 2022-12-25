@@ -5,7 +5,7 @@
 
 function saveUpdateAlert(vale, value2) {
     Swal.fire({
-        position: 'top-end',
+        position: 'bottom-end',
         icon: 'success',
         title: vale + ' has been ' + value2,
         showConfirmButton: false,
@@ -15,7 +15,7 @@ function saveUpdateAlert(vale, value2) {
 
 function unSuccessUpdateAlert(vale,vale2) {
     Swal.fire({
-        position: 'top-end',
+        position: 'bottom-end',
         icon: 'error',
         title: vale + " "+vale2,
         showConfirmButton: false,
