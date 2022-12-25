@@ -13,8 +13,7 @@ function checkValidity(object) {
             setTextError(validation.field, validation.error);
         }
     }
-
-    setButtonStateItem(errorCount);
+    setButtonState(errorCount);
 }
 
 function check(regex, txtField) {

@@ -305,7 +305,7 @@ $("#txtItemPrice").on('keydown', function (event) {
     }
 });
 
-function setButtonStateItem(value) {
+function setButtonState(value) {
     if (value > 0) {
         $("#btnAddItem").attr('disabled', true);
         $("#btnUpdateItem").attr('disabled', true);

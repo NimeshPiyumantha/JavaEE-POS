@@ -287,7 +287,7 @@ $("#txtCustomerSalary").on('keydown', function (event) {
     }
 });
 
-function setButtonStateCustomer(value) {
+function setButtonState(value) {
     if (value > 0) {
         $("#btnSaveCustomer").attr('disabled', true);
         $("#btnUpdateCustomer").attr('disabled', true);
