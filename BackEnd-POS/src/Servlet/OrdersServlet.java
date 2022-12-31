@@ -1,5 +1,9 @@
 package Servlet;
 
+import bo.BOFactory;
+import bo.custom.OrderBO;
+import bo.custom.OrderDetailsBO;
+import bo.custom.QueryBO;
 import dto.OrderDTO;
 import dto.OrderDetailDTO;
 import util.CrudUtil;
@@ -26,12 +30,16 @@ import java.util.ArrayList;
 
 @WebServlet(urlPatterns = "/orders")
 public class OrdersServlet extends HttpServlet {
+    private final QueryBO queryBO = (QueryBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.CUSTOM);
+    private final OrderBO orderBO = (OrderBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.ORDERS);
+    private final OrderDetailsBO orderDetailBO = (OrderDetailsBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.ORDERDETAILS);
+
+
     @Resource(name = "java:comp/env/jdbc/pool")
     DataSource dataSource;
 
     @Override
-
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
         JsonReader reader = Json.createReader(req.getReader());
         JsonObject jsonObject = reader.readObject();
@@ -45,7 +53,7 @@ public class OrdersServlet extends HttpServlet {
             connection.setAutoCommit(false);
 
             OrderDTO orderDTO = new OrderDTO(orderId, date, customerId);
-            boolean b = CrudUtil.execute(connection, "INSERT INTO orders VALUES(?,?,?)", orderDTO.getId(), orderDTO.getDate(), orderDTO.getCustomerId());
+            boolean b = orderBO.purchaseOrder(orderDTO, connection);
             if (!(b)) {
                 connection.rollback();
                 connection.setAutoCommit(true);
@@ -67,7 +75,7 @@ public class OrdersServlet extends HttpServlet {
                     double price = Double.parseDouble(object.getString("unitPrice"));
 
                     OrderDetailDTO orderDetailDTO = new OrderDetailDTO(orId, itId, qty, price);
-                    boolean b1 = CrudUtil.execute(connection, "INSERT INTO OrderDetail VALUES(?,?,?,?)", orderDetailDTO.getOrderId(), orderDetailDTO.getItemCode(), orderDetailDTO.getQty(), orderDetailDTO.getTotal());
+                    boolean b1 = orderDetailBO.purchaseOrderDetails(orderDetailDTO, connection);
 
                     if (!(b1)) {
                         connection.rollback();
@@ -105,7 +113,7 @@ public class OrdersServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
         JsonReader reader = Json.createReader(req.getReader());
         JsonObject jsonObject = reader.readObject();
@@ -119,7 +127,7 @@ public class OrdersServlet extends HttpServlet {
                 int qty = Integer.parseInt(object.getString("qty"));
                 double price = Double.parseDouble(object.getString("unitPrice"));
 
-                boolean b1 = CrudUtil.execute(connection, "UPDATE Item SET qty=qty-? WHERE code=?", qty, itId);
+                orderBO.mangeItems(qty, itId, connection);
 
             }
         } catch (SQLException | ClassNotFoundException e) {
@@ -129,9 +137,8 @@ public class OrdersServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ArrayList<OrderDTO> orderDTOS = new ArrayList<>();
-        ArrayList<OrderDetailDTO> orderDetailDTO = new ArrayList<>();
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
         JsonArrayBuilder allOrders = Json.createArrayBuilder();
         JsonArrayBuilder allOrderDetails = Json.createArrayBuilder();
 
@@ -141,13 +148,11 @@ public class OrdersServlet extends HttpServlet {
         switch (option) {
             case "OrderIdGenerate":
                 try (Connection connection = dataSource.getConnection()) {
-                    JsonObjectBuilder ordID = Json.createObjectBuilder();
-                    ResultSet result = CrudUtil.execute(connection, "SELECT orderId FROM `Orders` ORDER BY orderId DESC LIMIT 1");
-                    while (result.next()) {
-                        ordID.add("orderId", result.getString(1));
-                    }
-                    writer.print(ordID.build());
+                    String orderId = orderBO.generateNewOrder(connection);
 
+                    JsonObjectBuilder ordID = Json.createObjectBuilder();
+                    ordID.add("orderId", orderId);
+                    writer.print(ordID.build());
 
                 } catch (SQLException | ClassNotFoundException e) {
 
@@ -162,15 +167,13 @@ public class OrdersServlet extends HttpServlet {
                 break;
             case "LoadOrders":
                 try (Connection connection = dataSource.getConnection()) {
-                    ResultSet result = CrudUtil.execute(connection, "SELECT * FROM `Orders`");
-                    while (result.next()) {
-                        orderDTOS.add(new OrderDTO(result.getString(1), result.getString(2), result.getString(3)));
-                    }
-                    for (OrderDTO customerDTO : orderDTOS) {
+                    ArrayList<OrderDTO> orderDTOS = orderBO.getAllOrders(connection);
+
+                    for (OrderDTO orderDTO : orderDTOS) {
                         JsonObjectBuilder order = Json.createObjectBuilder();
-                        order.add("orderId", customerDTO.getId());
-                        order.add("date", customerDTO.getDate());
-                        order.add("cusId", customerDTO.getCustomerId());
+                        order.add("orderId", orderDTO.getId());
+                        order.add("date", orderDTO.getDate());
+                        order.add("cusId", orderDTO.getCustomerId());
                         allOrders.add(order.build());
                     }
 
@@ -191,10 +194,8 @@ public class OrdersServlet extends HttpServlet {
                 break;
             case "LoadOrderDetails":
                 try (Connection connection = dataSource.getConnection()) {
-                    ResultSet result = CrudUtil.execute(connection, "SELECT * FROM `OrderDetail`");
-                    while (result.next()) {
-                        orderDetailDTO.add(new OrderDetailDTO(result.getString(1), result.getString(2), result.getInt(3), result.getDouble(4)));
-                    }
+                    ArrayList<OrderDetailDTO> orderDetailDTO = orderDetailBO.getAllOrderDetails(connection);
+
                     for (OrderDetailDTO customerDTO : orderDetailDTO) {
                         JsonObjectBuilder orderDetails = Json.createObjectBuilder();
                         orderDetails.add("OrderId", customerDTO.getOrderId());
@@ -221,11 +222,10 @@ public class OrdersServlet extends HttpServlet {
                 break;
             case "ordersCount":
                 try (Connection connection = dataSource.getConnection()) {
+                    int countOrders = queryBO.getSumOrders(connection);
+
                     JsonObjectBuilder count = Json.createObjectBuilder();
-                    ResultSet result = CrudUtil.execute(connection, "SELECT COUNT(orderId) FROM `Orders`");
-                    while (result.next()) {
-                        count.add("count", result.getString(1));
-                    }
+                    count.add("count", countOrders);
                     writer.print(count.build());
 
 
