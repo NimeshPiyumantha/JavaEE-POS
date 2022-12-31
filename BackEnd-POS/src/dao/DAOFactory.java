@@ -1,5 +1,7 @@
 package dao;
 
+import dao.custom.impl.CustomerDAOImpl;
+
 /**
  * @author : Nimesh Piyumantha
  * @since : 0.1.0
@@ -18,7 +20,6 @@ public class DAOFactory {
         switch (types) {
             case CUSTOMER:
                 return new CustomerDAOImpl();
-                break;
 
             default:
                 return null;
