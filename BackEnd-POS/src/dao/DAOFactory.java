@@ -1,8 +1,6 @@
 package dao;
 
-import dao.custom.impl.CustomerDAOImpl;
-import dao.custom.impl.ItemDAOImpl;
-import dao.custom.impl.QueryDAOImpl;
+import dao.custom.impl.*;
 
 /**
  * @author : Nimesh Piyumantha
@@ -26,14 +24,16 @@ public class DAOFactory {
                 return new QueryDAOImpl();
             case ITEM:
                 return new ItemDAOImpl();
-
-
+            case ORDERS:
+                return new OrderDAOImpl();
+            case ORDERDETAILS:
+                return new OrderDetailsDAOImpl();
             default:
                 return null;
         }
     }
 
     public enum DAOTypes {
-        CUSTOMER,CUSTOM,ITEM,ORDERS,ORDERDETAILS
+        CUSTOMER, CUSTOM, ITEM, ORDERS, ORDERDETAILS
     }
 }

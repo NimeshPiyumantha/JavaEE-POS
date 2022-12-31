@@ -34,7 +34,7 @@ public class BOFactory {
     }
 
     public enum BOTypes {
-        CUSTOMER,CUSTOM,ITEM,ORDERS,ORDERDETAILS
+        CUSTOMER, CUSTOM, ITEM, ORDERS, ORDERDETAILS
     }
 
 }
