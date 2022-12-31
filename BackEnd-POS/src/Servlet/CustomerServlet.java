@@ -232,7 +232,7 @@ public class CustomerServlet extends HttpServlet {
     }
 
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         JsonReader reader = Json.createReader(req.getReader());
         JsonObject customer = reader.readObject();
 
@@ -240,9 +240,8 @@ public class CustomerServlet extends HttpServlet {
 
         //Delete Customer
         try (Connection connection = dataSource.getConnection()) {
-            boolean b = CrudUtil.execute(connection, "DELETE FROM Customer WHERE id=?", id);
+            boolean b = customerBO.deleteCustomer(id, connection);
             if (b) {
-
                 JsonObjectBuilder rjo = Json.createObjectBuilder();
                 rjo.add("state", "Ok");
                 rjo.add("message", "Successfully Deleted..!");
