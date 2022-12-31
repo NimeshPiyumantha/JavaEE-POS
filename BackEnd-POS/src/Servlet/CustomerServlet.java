@@ -1,5 +1,7 @@
 package Servlet;
 
+import bo.BOFactory;
+import bo.custom.CustomerBO;
 import dto.CustomerDTO;
 import util.CrudUtil;
 
@@ -24,6 +26,8 @@ import java.util.ArrayList;
  **/
 @WebServlet(urlPatterns = "/customer")
 public class CustomerServlet extends HttpServlet {
+    private final CustomerBO customerBO = (CustomerBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.CUSTOMER);
+
     @Resource(name = "java:comp/env/jdbc/pool")
     DataSource dataSource;
 

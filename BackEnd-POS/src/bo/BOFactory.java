@@ -1,5 +1,7 @@
 package bo;
 
+import bo.custom.impl.CustomerBOImpl;
+
 /**
  * @author : Nimesh Piyumantha
  * @since : 0.1.0
