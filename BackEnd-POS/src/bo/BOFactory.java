@@ -1,6 +1,7 @@
 package bo;
 
 import bo.custom.impl.CustomerBOImpl;
+import bo.custom.impl.QueryBOImpl;
 
 /**
  * @author : Nimesh Piyumantha
@@ -20,6 +21,8 @@ public class BOFactory {
         switch (types) {
             case CUSTOMER:
                 return new CustomerBOImpl();
+            case CUSTOM:
+                return new QueryBOImpl();
 
             default:
                 return null;
@@ -27,7 +30,7 @@ public class BOFactory {
     }
 
     public enum BOTypes {
-        CUSTOMER
+        CUSTOMER,CUSTOM
     }
 
 }

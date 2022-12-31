@@ -2,6 +2,7 @@ package Servlet;
 
 import bo.BOFactory;
 import bo.custom.CustomerBO;
+import bo.custom.QueryBO;
 import dto.CustomerDTO;
 import util.CrudUtil;
 
@@ -16,7 +17,6 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -27,6 +27,7 @@ import java.util.ArrayList;
 @WebServlet(urlPatterns = "/customer")
 public class CustomerServlet extends HttpServlet {
     private final CustomerBO customerBO = (CustomerBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.CUSTOMER);
+    private final QueryBO queryBO = (QueryBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.CUSTOM);
 
     @Resource(name = "java:comp/env/jdbc/pool")
     DataSource dataSource;
@@ -104,11 +105,10 @@ public class CustomerServlet extends HttpServlet {
                 break;
             case "CustomerIdGenerate":
                 try (Connection connection = dataSource.getConnection()) {
+                    String cID = customerBO.generateNewCustomerID(connection);
+
                     JsonObjectBuilder CusId = Json.createObjectBuilder();
-                    ResultSet result = CrudUtil.execute(connection, "SELECT id FROM Customer ORDER BY id DESC LIMIT 1");
-                    while (result.next()) {
-                        CusId.add("id", result.getString(1));
-                    }
+                    CusId.add("id", cID);
                     writer.print(CusId.build());
 
                 } catch (SQLException | ClassNotFoundException e) {
@@ -123,13 +123,11 @@ public class CustomerServlet extends HttpServlet {
                 break;
             case "CustomerCount":
                 try (Connection connection = dataSource.getConnection()) {
-                    JsonObjectBuilder count = Json.createObjectBuilder();
-                    ResultSet result = CrudUtil.execute(connection, "SELECT COUNT(id) FROM Customer");
-                    while (result.next()) {
-                        count.add("count", result.getString(1));
-                    }
-                    writer.print(count.build());
+                    int countCustomers = queryBO.getCustomer(connection);
 
+                    JsonObjectBuilder count = Json.createObjectBuilder();
+                    count.add("count", countCustomers);
+                    writer.print(count.build());
 
                 } catch (SQLException | ClassNotFoundException e) {
 
