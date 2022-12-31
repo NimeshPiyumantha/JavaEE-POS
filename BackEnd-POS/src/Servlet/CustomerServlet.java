@@ -184,7 +184,7 @@ public class CustomerServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
         JsonReader reader = Json.createReader(req.getReader());
         JsonObject customer = reader.readObject();
@@ -197,9 +197,8 @@ public class CustomerServlet extends HttpServlet {
         //Update Customer
         CustomerDTO cU = new CustomerDTO(id, name, address, salary);
         try (Connection connection = dataSource.getConnection()) {
-            boolean b = CrudUtil.execute(connection, "UPDATE Customer SET name= ? , address=? , salary=? WHERE id=?", cU.getName(), cU.getAddress(), cU.getSalary(), cU.getId());
+            boolean b = customerBO.updateCustomer(cU, connection);
             if (b) {
-
                 JsonObjectBuilder responseObject = Json.createObjectBuilder();
                 responseObject.add("state", "Ok");
                 responseObject.add("message", "Successfully Updated..!");
