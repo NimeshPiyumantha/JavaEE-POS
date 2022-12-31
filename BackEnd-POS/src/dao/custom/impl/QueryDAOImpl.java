@@ -14,12 +14,22 @@ import java.sql.SQLException;
 public class QueryDAOImpl implements QueryDAO {
     @Override
     public int getSumOrders(Connection connection) throws SQLException, ClassNotFoundException {
-        return 0;
+        ResultSet result = CrudUtil.execute(connection, "SELECT COUNT(orderId) FROM `Orders`");
+        if (result.next()) {
+            return result.getInt(1);
+        } else {
+            return 0;
+        }
     }
 
     @Override
     public int getItem(Connection connection) throws SQLException, ClassNotFoundException {
-        return 0;
+        ResultSet result = CrudUtil.execute(connection, "SELECT COUNT(code) FROM Item");
+        if (result.next()) {
+            return result.getInt(1);
+        } else {
+            return 0;
+        }
     }
 
     @Override

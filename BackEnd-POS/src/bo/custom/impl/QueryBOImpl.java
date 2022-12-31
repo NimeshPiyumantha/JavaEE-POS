@@ -17,12 +17,12 @@ public class QueryBOImpl implements QueryBO {
 
     @Override
     public int getSumOrders(Connection connection) throws SQLException, ClassNotFoundException {
-        return 0;
+        return queryDAO.getSumOrders(connection);
     }
 
     @Override
     public int getItem(Connection connection) throws SQLException, ClassNotFoundException {
-        return 0;
+        return queryDAO.getItem(connection);
     }
 
     @Override
