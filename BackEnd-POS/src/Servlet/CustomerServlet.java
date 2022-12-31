@@ -36,102 +36,109 @@ public class CustomerServlet extends HttpServlet {
         String option = req.getParameter("option");
 
         PrintWriter writer = resp.getWriter();
-        if (option.equals("searchCusId")) {
-            try (Connection connection = dataSource.getConnection()) {
-                ResultSet result = CrudUtil.execute(connection, "SELECT * FROM Customer WHERE id=?", id);
-                if (result.next()) {
-                    JsonObjectBuilder customer = Json.createObjectBuilder();
-                    customer.add("id", result.getString(1));
-                    customer.add("name", result.getString(2));
-                    customer.add("address", result.getString(3));
-                    customer.add("salary", String.valueOf(result.getDouble(4)));
-                    writer.print(customer.build());
+        switch (option) {
+            case "searchCusId":
+                try (Connection connection = dataSource.getConnection()) {
+                    ArrayList<CustomerDTO> arrayList = customerBO.customerSearchId(id, connection);
+                    if (arrayList.isEmpty()) {
+                        JsonObjectBuilder rjo = Json.createObjectBuilder();
+                        rjo.add("state", "Error");
+                        rjo.add("message", "Customer");
+                        rjo.add("data", "");
+                        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                        resp.getWriter().print(rjo.build());
 
-                } else {
+                    } else {
+                        for (CustomerDTO customerDTO : arrayList) {
+                            JsonObjectBuilder customer = Json.createObjectBuilder();
+                            customer.add("id", customerDTO.getId());
+                            customer.add("name", customerDTO.getName());
+                            customer.add("address", customerDTO.getAddress());
+                            customer.add("salary", customerDTO.getSalary());
+                            writer.print(customer.build());
+                        }
+                    }
+
+                } catch (SQLException | ClassNotFoundException e) {
+
                     JsonObjectBuilder rjo = Json.createObjectBuilder();
                     rjo.add("state", "Error");
-                    rjo.add("message", "Customer");
+                    rjo.add("message", e.getLocalizedMessage());
                     rjo.add("data", "");
                     resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     resp.getWriter().print(rjo.build());
                 }
 
-            } catch (SQLException | ClassNotFoundException e) {
+                break;
+            case "loadAllCustomer":
+                try (Connection connection = dataSource.getConnection()) {
+                    ResultSet result = CrudUtil.execute(connection, "SELECT * FROM Customer");
+                    while (result.next()) {
+                        obList.add(new CustomerDTO(result.getString(1), result.getString(2), result.getString(3), result.getDouble(4)));
+                    }
+                    for (CustomerDTO customerDTO : obList) {
+                        JsonObjectBuilder customer = Json.createObjectBuilder();
+                        customer.add("id", customerDTO.getId());
+                        customer.add("name", customerDTO.getName());
+                        customer.add("address", customerDTO.getAddress());
+                        customer.add("salary", customerDTO.getSalary());
+                        allCustomers.add(customer.build());
+                    }
 
-                JsonObjectBuilder rjo = Json.createObjectBuilder();
-                rjo.add("state", "Error");
-                rjo.add("message", e.getLocalizedMessage());
-                rjo.add("data", "");
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().print(rjo.build());
-            }
+                    JsonObjectBuilder job = Json.createObjectBuilder();
+                    job.add("state", "Ok");
+                    job.add("message", "Successfully Loaded..!");
+                    job.add("data", allCustomers.build());
+                    resp.getWriter().print(job.build());
 
-        } else if (option.equals("loadAllCustomer")) {
-            try (Connection connection = dataSource.getConnection()) {
-                ResultSet result = CrudUtil.execute(connection, "SELECT * FROM Customer");
-                while (result.next()) {
-                    obList.add(new CustomerDTO(result.getString(1), result.getString(2), result.getString(3), result.getDouble(4)));
+                } catch (ClassNotFoundException | SQLException e) {
+                    JsonObjectBuilder rjo = Json.createObjectBuilder();
+                    rjo.add("state", "Error");
+                    rjo.add("message", e.getLocalizedMessage());
+                    rjo.add("data", "");
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.getWriter().print(rjo.build());
                 }
-                for (CustomerDTO customerDTO : obList) {
-                    JsonObjectBuilder customer = Json.createObjectBuilder();
-                    customer.add("id", customerDTO.getId());
-                    customer.add("name", customerDTO.getName());
-                    customer.add("address", customerDTO.getAddress());
-                    customer.add("salary", customerDTO.getSalary());
-                    allCustomers.add(customer.build());
+                break;
+            case "CustomerIdGenerate":
+                try (Connection connection = dataSource.getConnection()) {
+                    JsonObjectBuilder CusId = Json.createObjectBuilder();
+                    ResultSet result = CrudUtil.execute(connection, "SELECT id FROM Customer ORDER BY id DESC LIMIT 1");
+                    while (result.next()) {
+                        CusId.add("id", result.getString(1));
+                    }
+                    writer.print(CusId.build());
+
+                } catch (SQLException | ClassNotFoundException e) {
+
+                    JsonObjectBuilder rjo = Json.createObjectBuilder();
+                    rjo.add("state", "Error");
+                    rjo.add("message", e.getLocalizedMessage());
+                    rjo.add("data", "");
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.getWriter().print(rjo.build());
                 }
+                break;
+            case "CustomerCount":
+                try (Connection connection = dataSource.getConnection()) {
+                    JsonObjectBuilder count = Json.createObjectBuilder();
+                    ResultSet result = CrudUtil.execute(connection, "SELECT COUNT(id) FROM Customer");
+                    while (result.next()) {
+                        count.add("count", result.getString(1));
+                    }
+                    writer.print(count.build());
 
-                JsonObjectBuilder job = Json.createObjectBuilder();
-                job.add("state", "Ok");
-                job.add("message", "Successfully Loaded..!");
-                job.add("data", allCustomers.build());
-                resp.getWriter().print(job.build());
 
-            } catch (ClassNotFoundException | SQLException e) {
-                JsonObjectBuilder rjo = Json.createObjectBuilder();
-                rjo.add("state", "Error");
-                rjo.add("message", e.getLocalizedMessage());
-                rjo.add("data", "");
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().print(rjo.build());
-            }
-        } else if (option.equals("CustomerIdGenerate")) {
-            try (Connection connection = dataSource.getConnection()) {
-                JsonObjectBuilder CusId = Json.createObjectBuilder();
-                ResultSet result = CrudUtil.execute(connection, "SELECT id FROM Customer ORDER BY id DESC LIMIT 1");
-                while (result.next()) {
-                    CusId.add("id", result.getString(1));
+                } catch (SQLException | ClassNotFoundException e) {
+
+                    JsonObjectBuilder rjo = Json.createObjectBuilder();
+                    rjo.add("state", "Error");
+                    rjo.add("message", e.getLocalizedMessage());
+                    rjo.add("data", "");
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.getWriter().print(rjo.build());
                 }
-                writer.print(CusId.build());
-
-            } catch (SQLException | ClassNotFoundException e) {
-
-                JsonObjectBuilder rjo = Json.createObjectBuilder();
-                rjo.add("state", "Error");
-                rjo.add("message", e.getLocalizedMessage());
-                rjo.add("data", "");
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().print(rjo.build());
-            }
-        } else if (option.equals("CustomerCount")) {
-            try (Connection connection = dataSource.getConnection()) {
-                JsonObjectBuilder count = Json.createObjectBuilder();
-                ResultSet result = CrudUtil.execute(connection, "SELECT COUNT(id) FROM Customer");
-                while (result.next()) {
-                    count.add("count", result.getString(1));
-                }
-                writer.print(count.build());
-
-
-            } catch (SQLException | ClassNotFoundException e) {
-
-                JsonObjectBuilder rjo = Json.createObjectBuilder();
-                rjo.add("state", "Error");
-                rjo.add("message", e.getLocalizedMessage());
-                rjo.add("data", "");
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().print(rjo.build());
-            }
+                break;
         }
     }
 

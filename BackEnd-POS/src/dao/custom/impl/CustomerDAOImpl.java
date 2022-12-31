@@ -2,8 +2,10 @@ package dao.custom.impl;
 
 import dao.custom.CustomerDAO;
 import entity.Customer;
+import util.CrudUtil;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -29,7 +31,13 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     @Override
     public ArrayList<Customer> searchId(String id, Connection connection) throws SQLException, ClassNotFoundException {
-        return null;
+        ResultSet rst = CrudUtil.execute(connection, "SELECT * FROM Customer WHERE id=?", id);
+
+        ArrayList<Customer> allCustomer = new ArrayList<>();
+        while (rst.next()) {
+            allCustomer.add(new Customer(rst.getString(1), rst.getString(2), rst.getString(3), rst.getDouble(4)));
+        }
+        return allCustomer;
     }
 
     @Override
