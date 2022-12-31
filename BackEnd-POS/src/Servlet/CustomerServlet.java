@@ -152,9 +152,9 @@ public class CustomerServlet extends HttpServlet {
 
         try (Connection connection = dataSource.getConnection()) {
             CustomerDTO c = new CustomerDTO(id, name, address, salary);
-            boolean b = CrudUtil.execute(connection, "INSERT INTO Customer VALUES (?,?,?,?)", c.getId(), c.getName(), c.getAddress(), c.getSalary());
-            if (b) {
+            boolean b = customerBO.saveCustomer(c, connection);
 
+            if (b) {
                 JsonObjectBuilder responseObject = Json.createObjectBuilder();
                 responseObject.add("state", "Ok");
                 responseObject.add("message", "Successfully added..!");
