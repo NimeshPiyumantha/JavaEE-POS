@@ -27,12 +27,13 @@ public class DAOFactory {
             case ITEM:
                 return new ItemDAOImpl();
 
+
             default:
                 return null;
         }
     }
 
     public enum DAOTypes {
-        CUSTOMER,CUSTOM,ITEM
+        CUSTOMER,CUSTOM,ITEM,ORDERS,ORDERDETAILS
     }
 }
