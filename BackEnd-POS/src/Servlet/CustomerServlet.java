@@ -33,7 +33,6 @@ public class CustomerServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ArrayList<CustomerDTO> obList = new ArrayList<>();
         JsonArrayBuilder allCustomers = Json.createArrayBuilder();
 
         String id = req.getParameter("id");
@@ -44,6 +43,7 @@ public class CustomerServlet extends HttpServlet {
             case "searchCusId":
                 try (Connection connection = dataSource.getConnection()) {
                     ArrayList<CustomerDTO> arrayList = customerBO.customerSearchId(id, connection);
+
                     if (arrayList.isEmpty()) {
                         JsonObjectBuilder rjo = Json.createObjectBuilder();
                         rjo.add("state", "Error");
@@ -76,10 +76,8 @@ public class CustomerServlet extends HttpServlet {
                 break;
             case "loadAllCustomer":
                 try (Connection connection = dataSource.getConnection()) {
-                    ResultSet result = CrudUtil.execute(connection, "SELECT * FROM Customer");
-                    while (result.next()) {
-                        obList.add(new CustomerDTO(result.getString(1), result.getString(2), result.getString(3), result.getDouble(4)));
-                    }
+                    ArrayList<CustomerDTO> obList = customerBO.getAllCustomers(connection);
+
                     for (CustomerDTO customerDTO : obList) {
                         JsonObjectBuilder customer = Json.createObjectBuilder();
                         customer.add("id", customerDTO.getId());
