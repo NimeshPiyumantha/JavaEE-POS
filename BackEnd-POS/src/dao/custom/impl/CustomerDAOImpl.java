@@ -27,12 +27,12 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     @Override
     public boolean save(Customer dto, Connection connection) throws SQLException, ClassNotFoundException {
-        return false;
+        return CrudUtil.execute(connection, "INSERT INTO Customer VALUES (?,?,?,?)", dto.getId(), dto.getName(), dto.getAddress(), dto.getSalary());
     }
 
     @Override
     public boolean update(Customer dto, Connection connection) throws SQLException, ClassNotFoundException {
-        return false;
+        return CrudUtil.execute(connection, "UPDATE Customer SET name= ? , address=? , salary=? WHERE id=?", dto.getName(), dto.getAddress(), dto.getSalary(), dto.getId());
     }
 
     @Override
@@ -47,12 +47,17 @@ public class CustomerDAOImpl implements CustomerDAO {
     }
 
     @Override
-    public boolean delete(String s, Connection connection) throws SQLException, ClassNotFoundException {
-        return false;
+    public boolean delete(String id, Connection connection) throws SQLException, ClassNotFoundException {
+        return CrudUtil.execute(connection, "DELETE FROM Customer WHERE id=?", id);
     }
 
     @Override
     public String generateNewID(Connection connection) throws SQLException, ClassNotFoundException {
-        return null;
+        ResultSet result = CrudUtil.execute(connection, "SELECT id FROM Customer ORDER BY id DESC LIMIT 1");
+        if (result.next()) {
+            return result.getString(1);
+        } else {
+            return null;
+        }
     }
 }
