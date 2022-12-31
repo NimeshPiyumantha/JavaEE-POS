@@ -1,5 +1,8 @@
 package Servlet;
 
+import bo.BOFactory;
+import bo.custom.ItemBO;
+import bo.custom.QueryBO;
 import dto.ItemDTO;
 
 import util.CrudUtil;
@@ -26,119 +29,126 @@ import java.util.ArrayList;
 
 @WebServlet(urlPatterns = "/item")
 public class ItemServlet extends HttpServlet {
+
+    private final QueryBO queryBO = (QueryBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.CUSTOM);
+    private final ItemBO itemBO = (ItemBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.ITEM);
+
     @Resource(name = "java:comp/env/jdbc/pool")
     DataSource dataSource;
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ArrayList<ItemDTO> obList = new ArrayList<>();
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
         JsonArrayBuilder allItems = Json.createArrayBuilder();
 
         String code = req.getParameter("code");
         String option = req.getParameter("option");
 
         PrintWriter writer = resp.getWriter();
-        if (option.equals("searchItemCode")) {
-            try (Connection connection = dataSource.getConnection()) {
-                ResultSet result = CrudUtil.execute(connection, "SELECT * FROM Item WHERE code=?", code);
-                if (result.next()) {
-                    JsonObjectBuilder item = Json.createObjectBuilder();
-                    item.add("code", result.getString(1));
-                    item.add("description", result.getString(2));
-                    item.add("qty", String.valueOf(result.getInt(3)));
-                    item.add("unitPrice", String.valueOf(result.getDouble(4)));
-                    writer.print(item.build());
+        switch (option) {
+            case "searchItemCode":
+                try (Connection connection = dataSource.getConnection()) {
+                    ArrayList<ItemDTO> arrayList = itemBO.itemSearchId(code, connection);
+                    if (arrayList.isEmpty()) {
+                        JsonObjectBuilder rjo = Json.createObjectBuilder();
+                        rjo.add("state", "Error");
+                        rjo.add("message", "Item");
+                        rjo.add("data", "");
+                        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                        resp.getWriter().print(rjo.build());
 
-                } else {
+                    } else {
+                        for (ItemDTO itemDTO : arrayList) {
+                            JsonObjectBuilder item = Json.createObjectBuilder();
+                            item.add("code", itemDTO.getCode());
+                            item.add("description", itemDTO.getDescription());
+                            item.add("qty", itemDTO.getQty());
+                            item.add("unitPrice", itemDTO.getUnitPrice());
+                            writer.print(item.build());
+                        }
+                    }
+
+                } catch (SQLException | ClassNotFoundException e) {
+
                     JsonObjectBuilder rjo = Json.createObjectBuilder();
                     rjo.add("state", "Error");
-                    rjo.add("message", "Item");
+                    rjo.add("message", e.getLocalizedMessage());
                     rjo.add("data", "");
                     resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     resp.getWriter().print(rjo.build());
                 }
 
-            } catch (SQLException | ClassNotFoundException e) {
+                break;
+            case "loadAllItem":
+                try (Connection connection = dataSource.getConnection()) {
+                    ArrayList<ItemDTO> obList = itemBO.getAllItems(connection);
 
-                JsonObjectBuilder rjo = Json.createObjectBuilder();
-                rjo.add("state", "Error");
-                rjo.add("message", e.getLocalizedMessage());
-                rjo.add("data", "");
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().print(rjo.build());
-            }
+                    for (ItemDTO itemDTO : obList) {
+                        JsonObjectBuilder item = Json.createObjectBuilder();
+                        item.add("code", itemDTO.getCode());
+                        item.add("description", itemDTO.getDescription());
+                        item.add("qty", itemDTO.getQty());
+                        item.add("unitPrice", itemDTO.getUnitPrice());
+                        allItems.add(item.build());
+                    }
 
-        } else if (option.equals("loadAllItem")) {
-            try (Connection connection = dataSource.getConnection()) {
-                ResultSet result = CrudUtil.execute(connection, "SELECT * FROM Item");
-                while (result.next()) {
-                    obList.add(new ItemDTO(result.getString(1), result.getString(2), result.getInt(3), result.getDouble(4)));
+                    JsonObjectBuilder job = Json.createObjectBuilder();
+                    job.add("state", "Ok");
+                    job.add("message", "Successfully Loaded..!");
+                    job.add("data", allItems.build());
+                    resp.getWriter().print(job.build());
+
+                } catch (ClassNotFoundException | SQLException e) {
+                    JsonObjectBuilder rjo = Json.createObjectBuilder();
+                    rjo.add("state", "Error");
+                    rjo.add("message", e.getLocalizedMessage());
+                    rjo.add("data", "");
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.getWriter().print(rjo.build());
                 }
-                for (ItemDTO itemDTO : obList) {
-                    JsonObjectBuilder item = Json.createObjectBuilder();
-                    item.add("code", itemDTO.getCode());
-                    item.add("description", itemDTO.getDescription());
-                    item.add("qty", itemDTO.getQty());
-                    item.add("unitPrice", itemDTO.getUnitPrice());
-                    allItems.add(item.build());
+                break;
+            case "ItemIdGenerate":
+                try (Connection connection = dataSource.getConnection()) {
+                    String iCode = itemBO.generateNewItemCode(connection);
+
+                    JsonObjectBuilder ItemID = Json.createObjectBuilder();
+                    ItemID.add("code", iCode);
+                    writer.print(ItemID.build());
+
+                } catch (SQLException | ClassNotFoundException e) {
+
+                    JsonObjectBuilder rjo = Json.createObjectBuilder();
+                    rjo.add("state", "Error");
+                    rjo.add("message", e.getLocalizedMessage());
+                    rjo.add("data", "");
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.getWriter().print(rjo.build());
                 }
+                break;
+            case "itemCount":
+                try (Connection connection = dataSource.getConnection()) {
+                    int countItems = queryBO.getItem(connection);
 
-                JsonObjectBuilder job = Json.createObjectBuilder();
-                job.add("state", "Ok");
-                job.add("message", "Successfully Loaded..!");
-                job.add("data", allItems.build());
-                resp.getWriter().print(job.build());
+                    JsonObjectBuilder count = Json.createObjectBuilder();
+                    count.add("count", countItems);
+                    writer.print(count.build());
 
-            } catch (ClassNotFoundException | SQLException e) {
-                JsonObjectBuilder rjo = Json.createObjectBuilder();
-                rjo.add("state", "Error");
-                rjo.add("message", e.getLocalizedMessage());
-                rjo.add("data", "");
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().print(rjo.build());
-            }
-        } else if (option.equals("ItemIdGenerate")) {
-            try (Connection connection = dataSource.getConnection()) {
-                JsonObjectBuilder ItemID = Json.createObjectBuilder();
-                ResultSet result = CrudUtil.execute(connection, "SELECT code FROM Item ORDER BY code DESC LIMIT 1");
-                while (result.next()) {
-                    ItemID.add("code", result.getString(1));
+
+                } catch (SQLException | ClassNotFoundException e) {
+
+                    JsonObjectBuilder rjo = Json.createObjectBuilder();
+                    rjo.add("state", "Error");
+                    rjo.add("message", e.getLocalizedMessage());
+                    rjo.add("data", "");
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.getWriter().print(rjo.build());
                 }
-                writer.print(ItemID.build());
-
-            } catch (SQLException | ClassNotFoundException e) {
-
-                JsonObjectBuilder rjo = Json.createObjectBuilder();
-                rjo.add("state", "Error");
-                rjo.add("message", e.getLocalizedMessage());
-                rjo.add("data", "");
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().print(rjo.build());
-            }
-        } else if (option.equals("itemCount")) {
-            try (Connection connection = dataSource.getConnection()) {
-                JsonObjectBuilder count = Json.createObjectBuilder();
-                ResultSet result = CrudUtil.execute(connection, "SELECT COUNT(code) FROM Item");
-                while (result.next()) {
-                    count.add("count", result.getString(1));
-                }
-                writer.print(count.build());
-
-
-            } catch (SQLException | ClassNotFoundException e) {
-
-                JsonObjectBuilder rjo = Json.createObjectBuilder();
-                rjo.add("state", "Error");
-                rjo.add("message", e.getLocalizedMessage());
-                rjo.add("data", "");
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().print(rjo.build());
-            }
+                break;
         }
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
         String code = req.getParameter("code");
         String description = req.getParameter("description");
@@ -147,9 +157,9 @@ public class ItemServlet extends HttpServlet {
 
         try (Connection connection = dataSource.getConnection()) {
             ItemDTO i = new ItemDTO(code, description, qty, unitPrice);
-            boolean b = CrudUtil.execute(connection, "INSERT INTO Item VALUES (?,?,?,?)", i.getCode(), i.getDescription(), i.getQty(), i.getUnitPrice());
-            if (b) {
+            boolean b = itemBO.saveItem(i, connection);
 
+            if (b) {
                 JsonObjectBuilder responseObject = Json.createObjectBuilder();
                 responseObject.add("state", "Ok");
                 responseObject.add("message", "Successfully added..!");
@@ -179,7 +189,7 @@ public class ItemServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         JsonReader reader = Json.createReader(req.getReader());
         JsonObject item = reader.readObject();
 
@@ -191,9 +201,9 @@ public class ItemServlet extends HttpServlet {
         //Update Item
         ItemDTO iU = new ItemDTO(code, description, qty, unitPrice);
         try (Connection connection = dataSource.getConnection()) {
-            boolean b = CrudUtil.execute(connection, "UPDATE Item SET description= ? , qty=? , unitPrice=? WHERE code=?", iU.getDescription(), iU.getQty(), iU.getUnitPrice(), iU.getCode());
-            if (b) {
+            boolean b = itemBO.updateItem(iU, connection);
 
+            if (b) {
                 JsonObjectBuilder responseObject = Json.createObjectBuilder();
                 responseObject.add("state", "Ok");
                 responseObject.add("message", "Successfully Updated..!");
@@ -226,7 +236,7 @@ public class ItemServlet extends HttpServlet {
     }
 
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         JsonReader reader = Json.createReader(req.getReader());
         JsonObject item = reader.readObject();
 
@@ -234,9 +244,9 @@ public class ItemServlet extends HttpServlet {
 
         //Delete Item
         try (Connection connection = dataSource.getConnection()) {
-            boolean b = CrudUtil.execute(connection, "DELETE FROM Item WHERE code=?", code);
-            if (b) {
+            boolean b = itemBO.deleteItem(code, connection);
 
+            if (b) {
                 JsonObjectBuilder rjo = Json.createObjectBuilder();
                 rjo.add("state", "Ok");
                 rjo.add("message", "Successfully Deleted..!");
