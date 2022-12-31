@@ -1,8 +1,6 @@
 package bo;
 
-import bo.custom.impl.CustomerBOImpl;
-import bo.custom.impl.ItemBOImpl;
-import bo.custom.impl.QueryBOImpl;
+import bo.custom.impl.*;
 
 /**
  * @author : Nimesh Piyumantha
@@ -26,14 +24,17 @@ public class BOFactory {
                 return new QueryBOImpl();
             case ITEM:
                 return new ItemBOImpl();
-
+            case ORDERS:
+                return new OrderBOImpl();
+            case ORDERDETAILS:
+                return new OrderDetailsBOImpl();
             default:
                 return null;
         }
     }
 
     public enum BOTypes {
-        CUSTOMER,CUSTOM,ITEM
+        CUSTOMER,CUSTOM,ITEM,ORDERS,ORDERDETAILS
     }
 
 }
