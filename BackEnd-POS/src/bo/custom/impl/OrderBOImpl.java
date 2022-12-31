@@ -2,6 +2,7 @@ package bo.custom.impl;
 
 import bo.custom.OrderBO;
 import dao.DAOFactory;
+import dao.custom.OrderDAO;
 import dto.OrderDTO;
 import entity.Orders;
 
@@ -31,7 +32,6 @@ public class OrderBOImpl implements OrderBO {
         }
         return allOrders;
     }
-
 
     @Override
     public String generateNewOrder(Connection connection) throws SQLException, ClassNotFoundException {

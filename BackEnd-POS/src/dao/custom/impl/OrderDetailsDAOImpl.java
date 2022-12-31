@@ -2,8 +2,10 @@ package dao.custom.impl;
 
 import dao.custom.OrderDetailsDAO;
 import entity.OrderDetail;
+import util.CrudUtil;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -14,21 +16,27 @@ import java.util.ArrayList;
 public class OrderDetailsDAOImpl implements OrderDetailsDAO {
     @Override
     public ArrayList<OrderDetail> getAll(Connection connection) throws SQLException, ClassNotFoundException {
-        return null;
+        ResultSet result = CrudUtil.execute(connection, "SELECT * FROM `OrderDetail`");
+
+        ArrayList<OrderDetail> orderDetailDTO = new ArrayList<>();
+        while (result.next()) {
+            orderDetailDTO.add(new OrderDetail(result.getString(1), result.getString(2), result.getInt(3), result.getDouble(4)));
+        }
+        return orderDetailDTO;
     }
 
     @Override
-    public boolean save(OrderDetail dto, Connection connection) throws SQLException, ClassNotFoundException {
+    public boolean save(OrderDetail orderDetailDTO, Connection connection) throws SQLException, ClassNotFoundException {
+        return CrudUtil.execute(connection, "INSERT INTO OrderDetail VALUES(?,?,?,?)", orderDetailDTO.getOrderId(), orderDetailDTO.getItemCode(), orderDetailDTO.getQty(), orderDetailDTO.getTotal());
+    }
+
+    @Override
+    public boolean update(OrderDetail dto, Connection connection) {
         return false;
     }
 
     @Override
-    public boolean update(OrderDetail dto, Connection connection) throws SQLException, ClassNotFoundException {
-        return false;
-    }
-
-    @Override
-    public ArrayList<OrderDetail> searchId(String id, Connection connection) throws SQLException, ClassNotFoundException {
+    public ArrayList<OrderDetail> searchId(String id, Connection connection) {
         return null;
     }
 
@@ -38,7 +46,7 @@ public class OrderDetailsDAOImpl implements OrderDetailsDAO {
     }
 
     @Override
-    public String generateNewID(Connection connection) throws SQLException, ClassNotFoundException {
+    public String generateNewID(Connection connection) {
         return null;
     }
 }
