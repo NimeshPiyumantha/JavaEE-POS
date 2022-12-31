@@ -5,6 +5,11 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * @author : Nimesh Piyumantha
+ * @since : 0.1.0
+ **/
+
 @WebFilter(urlPatterns = "/*")
 public class CORSFilter implements Filter {
     @Override
