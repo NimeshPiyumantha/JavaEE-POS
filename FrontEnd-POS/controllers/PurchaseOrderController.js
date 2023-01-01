@@ -13,6 +13,22 @@ $("#btnAddToCart").attr('disabled', true);
  * */
 
 /**
+ * Date Default
+ * */
+function setDates() {
+
+    const date = new Date();
+
+    const day = ("0" + date.getDate()).slice(-2);
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+
+    const today = date.getFullYear() + "-" + (month) + "-" + (day);
+
+    $('#orderDate').val(today);
+
+}
+
+/**
  * Invoice Details
  * Order ID
  * */
@@ -24,6 +40,8 @@ function generateOrderID() {
         contentType: "application/json",
         dataType: "json",
         success: function (resp) {
+            setDates();//Date
+
             let orderId = resp.orderId;
             let tempId = parseInt(orderId.split("-")[1]);
             tempId = tempId + 1;
@@ -47,10 +65,7 @@ function generateOrderID() {
  * */
 $("#cmbCustomerId").empty();
 $.ajax({
-    url: baseUrl + "customer?option=loadAllCustomer",
-    method: "GET",
-    dataType: "json",
-    success: function (res) {
+    url: baseUrl + "customer?option=loadAllCustomer", method: "GET", dataType: "json", success: function (res) {
         console.log(res);
 
         for (let i of res.data) {
@@ -60,8 +75,7 @@ $.ajax({
         }
         generateOrderID();
         console.log(res.message);
-    },
-    error: function (error) {
+    }, error: function (error) {
         let message = JSON.parse(error.responseText).message;
         console.log(message);
     }
@@ -96,10 +110,7 @@ $("#cmbCustomerId").click(function () {
  * */
 $("#cmbItemCode").empty();
 $.ajax({
-    url: baseUrl + "item?option=loadAllItem",
-    method: "GET",
-    dataType: "json",
-    success: function (res) {
+    url: baseUrl + "item?option=loadAllItem", method: "GET", dataType: "json", success: function (res) {
         console.log(res);
         for (let i of res.data) {
             let code = i.code;
@@ -107,8 +118,7 @@ $.ajax({
             $("#cmbItemCode").append(`<option>${code}</option>`);
         }
         console.log(res.message);
-    },
-    error: function (error) {
+    }, error: function (error) {
         let message = JSON.parse(error.responseText).message;
         console.log(message);
     }
@@ -263,6 +273,7 @@ function manageTotal(preTotal, nowTotal) {
  * Table Load
  * */
 $("#tblAddToCart").empty();
+
 function loadCartTableDetail() {
     itemCode = $("#cmbItemCode").val();
     itemName = $("#itemName").val();
@@ -329,7 +340,6 @@ $(document).on("change keyup blur", "#txtCash", function () {
 });
 
 
-
 /**
  * Logics
  * Place order
@@ -353,10 +363,7 @@ $("#btnPurchase").click(function () {
     var date = $("#orderDate").val();
 
     var orderOb = {
-        "orderId": orderId,
-        "date": date,
-        "customerId": customerId,
-        "detail": orderDetails
+        "orderId": orderId, "date": date, "customerId": customerId, "detail": orderDetails
     }
     console.log(orderOb)
     console.log(orderDetails)
@@ -428,10 +435,7 @@ $("#tblAddToCart").dblclick(function () {
         confirmButtonText: 'Yes',
         denyButtonText: 'No',
         customClass: {
-            actions: 'my-actions',
-            cancelButton: 'order-1 right-gap',
-            confirmButton: 'order-2',
-            denyButton: 'order-3',
+            actions: 'my-actions', cancelButton: 'order-1 right-gap', confirmButton: 'order-2', denyButton: 'order-3',
         }
     }).then((result) => {
         if (result.isConfirmed) {
